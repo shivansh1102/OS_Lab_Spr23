@@ -1,8 +1,9 @@
 # !/bin/bash
-> output.txt
-limit=1000000
+>output.txt
+limit=1005
 numbers=($(seq 2 $limit))
 primes=()
+# echo ${#numbers[@]}
 for ((i=0; i<${#numbers[@]}; i++)); do
   if [[ ${numbers[$i]} -ne 0 ]]; then
     primes+=(${numbers[$i]})
@@ -11,16 +12,25 @@ for ((i=0; i<${#numbers[@]}; i++)); do
     done
   fi
 done
-# echo "Done"
-while IFS= read -r temp; do
-    length=${#temp}
-    temp=${temp:0:length-1}
-    for number in ${primes[@]}; do
-        if [[ $number -le $temp ]]; then
-            printf $number" " >> output.txt
-        else
-            break
-        fi
+
+while IFS= read -r num; do
+    length=${#num}
+    num=${num:0:length-1}
+    length=${#primes[@]}
+    for ((i=0; i<$length ; i++)); do
+    if [ $num -eq 1 ]; then
+      break;
+    fi
+    if [ $(($num % ${primes[i]})) -eq 0 ]; then
+      printf ${primes[i]}" " >> output.txt
+    fi
+    while [ $(($num % ${primes[i]})) -eq 0 ]; do
+        prime_factors[counter]=$i
+        num=$(( $num/${primes[i]} ))
     done
+    done
+    if [ $num -ne 1 ]; then
+      printf $num >> output.txt
+    fi
     echo >> output.txt
 done < input.txt
