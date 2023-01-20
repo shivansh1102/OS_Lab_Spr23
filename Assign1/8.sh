@@ -1,7 +1,6 @@
 # !/bin/bash
 touch main.csv;
 touch temp.csv;
-touch manual_page.1;
 if [ ! -s main.csv ]; then
     echo "Date,Category,Amount,Name" >> main.csv
 fi
@@ -19,14 +18,16 @@ while getopts ":c:n:s:h" opt; do
   case $opt in
     c)echo ${C[$OPTARG]};;
     n)echo ${N[$OPTARG]};;
-    s) if [[ $OPTARG == "Category" ]]; then
-         tail +1 main.csv | sort -t, -k2d > temp.csv 
+    s)
+        echo "Date,Category,Amount,Name" >> temp.csv
+     if [[ $OPTARG == "Category" ]]; then
+         tail +1 main.csv | sort -t, -k2d >> temp.csv 
       elif [[ $OPTARG == "Amount" ]]; then
-          tail +1 main.csv | sort -t, -k3n > temp.csv
+          tail +1 main.csv | sort -t, -k3n >> temp.csv
       elif [[ $OPTARG == "Name" ]]; then
-          tail +1 main.csv | sort -t, -k4d > temp.csv
+          tail +1 main.csv | sort -t, -k4d >> temp.csv
       else
-          sort -t, -k1.7,1.8n -k1.4,1.5n -k1.1,1.2n main.csv > temp.csv 
+          sort -t, -k1.7,1.8n -k1.4,1.5n -k1.1,1.2n main.csv >> temp.csv 
       fi
        cp temp.csv main.csv
        > temp.csv
