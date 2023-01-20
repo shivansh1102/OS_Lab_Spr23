@@ -1,12 +1,15 @@
 # !/bin/bash
 touch main.csv;
-touch temp.csv;
+> temp.csv;
 if [ ! -s main.csv ]; then
     echo "Date,Category,Amount,Name" >> main.csv
 fi
 
 if [[ ${@: -4:1} =~ ^[0-9]{2}-[0-9]{2}-[0-9]{2}$ ]]
   then echo ${@: -4:1}","${@: -3:1}","${@: -2:1}","${@: -1} >> main.csv
+  sort -t, -k1.7,1.8n -k1.4,1.5n -k1.1,1.2n main.csv > temp.csv
+  cp temp.csv main.csv
+  > temp.csv
 fi
 declare -A C N
 while IFS="," read -r date category amount name
@@ -19,7 +22,7 @@ while getopts ":c:n:s:h" opt; do
     c)echo ${C[$OPTARG]};;
     n)echo ${N[$OPTARG]};;
     s)
-        echo "Date,Category,Amount,Name" >> temp.csv
+        # echo "Date,Category,Amount,Name" >> temp.csv
      if [[ $OPTARG == "Category" ]]; then
          tail +1 main.csv | sort -t, -k2d >> temp.csv 
       elif [[ $OPTARG == "Amount" ]]; then
@@ -27,7 +30,7 @@ while getopts ":c:n:s:h" opt; do
       elif [[ $OPTARG == "Name" ]]; then
           tail +1 main.csv | sort -t, -k4d >> temp.csv
       else
-          sort -t, -k1.7,1.8n -k1.4,1.5n -k1.1,1.2n main.csv >> temp.csv 
+          sort -t, -k1.7,1.8n -k1.4,1.5n -k1.1,1.2n main.csv > temp.csv 
       fi
        cp temp.csv main.csv
        > temp.csv
