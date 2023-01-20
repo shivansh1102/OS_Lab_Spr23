@@ -1,6 +1,7 @@
 # !/bin/bash
 touch main.csv;
 touch temp.csv;
+touch manual_page.1;
 if [ ! -s main.csv ]; then
     echo "Date,Category,Amount,Name" >> main.csv
 fi
@@ -30,9 +31,27 @@ while getopts ":c:n:s:h" opt; do
        cp temp.csv main.csv
        > temp.csv
       ;;
-    h) echo "TOP G ;)";;
+    h) 
+echo ".TH test.sh 1
+.SH NAME
+test.sh \- Print Hello or Bye 
+.SH SYNOPSIS
+.B test.sh
+[ h ]
+[ b ]
+.SH DESCRIPTION
+.B test.sh
+This is a sample script which does only 2 things. It either prints "Hello" if argument is 'h' or it prints "Bye" if argument is 'b'
+.SH OPTIONS
+.TP
+.BR h
+Print Hello
+.TP
+.BR b 
+Print Bye" > manual_page.1
+man ./manual_page.1
+    ;;
     \?)  echo "Invalid option: -$OPTARG" >&2;;
   esac
 done
 rm temp.csv
-
