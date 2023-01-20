@@ -32,24 +32,39 @@ while getopts ":c:n:s:h" opt; do
        > temp.csv
       ;;
     h) 
-echo ".TH test.sh 1
+echo ".TH Assgn1_8_31.sh 1
 .SH NAME
-test.sh \- Print Hello or Bye 
+\fBAssgn1_8_31.sh \fR\- Script to track expenses and sort csv file
 .SH SYNOPSIS
-.B test.sh
-[ h ]
-[ b ]
+.B sh Assgn1_8_31.sh
+[ -c Category ]
+[ -n name ]
+[ -s column ]
+[ -h ]
+Date
+Category
+Amount
+Name
 .SH DESCRIPTION
 .B test.sh
-This is a sample script which does only 2 things. It either prints "Hello" if argument is 'h' or it prints "Bye" if argument is 'b'
+Script essentially manipulates a csv file.
+The script accepts 4 arguments Date(dd-mm-yy), Category, Amount, Name and adds the record into the main.csv file.
+
 .SH OPTIONS
 .TP
-.BR h
-Print Hello
+.BI \-c \" Category\"
+Prints the amount of money spent in that Category
 .TP
-.BR b 
-Print Bye" > manual_page.1
+.BI \-n \" name\"
+Print the amount spent by the person with given name
+.TP
+.BI \-s \" column\"
+Sort the csv by Column name
+.TP
+.BR -h
+Shows the help prompt" > manual_page.1
 man ./manual_page.1
+rm manual_page.1
     ;;
     \?)  echo "Invalid option: -$OPTARG" >&2;;
   esac
