@@ -1,4 +1,4 @@
-numbers = `cat $1 | rev`
+numbers=`cat $1 | rev`
 lcm=1
 for num in $numbers
 do 
@@ -10,6 +10,6 @@ do
         b=$(($a%$b))
         a=$temp
     done
-    lcm=$((lcm*(num/a)))
+    lcm=$((lcm*($num/$a)))
 done
 echo $lcm
