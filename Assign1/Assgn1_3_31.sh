@@ -10,11 +10,12 @@ do
 # Adding one extra line
     (cat $file; echo)|while read -r line
     do
+        if [ "$line" != "" ]; then 
 # For each item(attribute), we're extracting its value in json file using "jq"
         echo "$( for item in "${@:3}"
-                do
-                echo -n ",$( echo "$line" | jq -r ".$item")"
+                do 
+                echo -n ",$( echo "$line" | jq -r ".$item")" 
 # Added a ',' for the first item, so removing it using "cut"
-            done | cut -c2- )" >> "$csvFile"
+            done | cut -c2- )" >> "$csvFile"; fi
     done
 done
