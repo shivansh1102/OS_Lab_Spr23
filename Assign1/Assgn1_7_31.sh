@@ -1,4 +1,3 @@
-
 files=`find $1 -type f -name "*.txt"`
 mkdir -p $2
 for x in {A..Z}
