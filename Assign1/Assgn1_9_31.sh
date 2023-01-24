@@ -1,6 +1,5 @@
 gawk 'function key_to_val(i1,v1,i2,v2){
-    if(v1>v2)return -1
-    if(v1==v2 && i1<i2)return -1
+    if(v1==v2&&i1<i2||v1>v2)return -1
     return 1
 }
 {
