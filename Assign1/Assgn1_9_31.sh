@@ -7,7 +7,8 @@ gawk 'function key_to_val(i1,v1,i2,v2){
     students[$1]++
     majors[$2]++
 }
-END{count=0
+END{
+    count=0
     PROCINFO["sorted_in"] = "key_to_val"
     for(i in majors) print(i,majors[i])
     for(i in students){
