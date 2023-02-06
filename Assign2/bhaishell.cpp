@@ -80,7 +80,10 @@ int main(){
         char *input = readline(pwd.c_str());
         history.addHistory(input);
         if (strcmp(input, "exit")==0)
+        {
+            cout << "Bye bhai..." << endl;
             break;
+        } 
         string command = input;
         if(command.empty())
         continue;
