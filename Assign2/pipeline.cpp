@@ -155,9 +155,12 @@ bool Pipes::runIndividualCmd(vector<vector<string>> &cmdTokens, int prev_out, in
             close(prev_out);
         }
         if (command[0] == NULL)
-            exit(0);
+        exit(0);
         else
-            execvp(command[0], command);
+        {
+            if(execvp(command[0], command) < 0)
+            cout << "O bhai bhai bhai..." << endl;
+        }
         // If some error occurs in doing execvp()
         exit(1);
     }
