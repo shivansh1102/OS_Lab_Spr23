@@ -54,8 +54,7 @@ int main(){
 
     rl_bind_keyseq("\\e[A", moveUpArrow);
     rl_bind_keyseq("\\e[B", moveDownArrow);
-    signal(SIGINT, handleCtrlC);
-
+    
 
 
     struct sigaction action;
