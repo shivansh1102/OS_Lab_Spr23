@@ -57,10 +57,10 @@ void handle_ctrl_CZ(int sig)
             Pipes* currpipe = allPipes[pipeIndexMap[getpid()]];
             currpipe->isBackground = true;
         }
-        // printf("\n");
-        // rl_reset_line_state();
-        // rl_replace_line("",0);
-        // rl_redisplay();
+        printf("\n");
+        rl_reset_line_state();
+        rl_replace_line("",0);
+        rl_redisplay();
         // rl_delete(0,1);
         // rl_redisplay();
     }
