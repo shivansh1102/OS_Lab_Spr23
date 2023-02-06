@@ -1,0 +1,12 @@
+total 232
+drwxrwxr-x 3 likhith26090 likhith26090  4096 Feb  5 21:44 .
+drwxrwxr-x 5 likhith26090 likhith26090  4096 Feb  5 20:46 ..
+-rwxrwxr-x 1 likhith26090 likhith26090 99416 Feb  5 21:44 a.out
+-rw------- 1 likhith26090 likhith26090   247 Feb  5 21:44 .history.txt
+-rw-rw-r-- 1 likhith26090 likhith26090 88298 Feb  4 19:07 OSlab-Asgn2-shell-design-2023-part-1-part-2.pdf
+-rw-rw-r-- 1 likhith26090 likhith26090     0 Feb  5 21:44 output.txt
+-rw-rw-r-- 1 likhith26090 likhith26090  1760 Feb  5 21:43 pipe.cpp
+-rw-rw-r-- 1 likhith26090 likhith26090 12723 Feb  5 21:35 stringProcessing.cpp
+-rw-rw-r-- 1 likhith26090 likhith26090   964 Feb  5 20:41 stringProcessing.hpp
+-rw-rw-r-- 1 likhith26090 likhith26090   668 Feb  5 20:27 timepass.c
+drwxrwxr-x 2 likhith26090 likhith26090  4096 Feb  5 20:45 .vscode
