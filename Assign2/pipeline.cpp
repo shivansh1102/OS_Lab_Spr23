@@ -43,8 +43,6 @@ void Pipes::executePipes()
 
     vector<vector<string>> tokens = getAllVectoredTokens(individualCmds[n-1]);
     noChild &= runIndividualCmd(tokens, st_in, st_out, n-1);
-
-    // cout << pgrpID << endl;
             
 
     // If process is a background process, then it should not wait
@@ -54,11 +52,10 @@ void Pipes::executePipes()
     {
         if(!noChild)                    // if no fork() is done, then no need to wait for any child
         waitForForegroundProcess(pgrpID);
-        // cout << "hi" << endl;
     
         // If ctrl+z is pressed, process was stopped using SIGSTOP, so continuing it in background
         if(isBackground)  
-        kill(-pgrpID, SIGCONT);
+        killpg(pgrpID, SIGCONT);
     }
 
     tcsetpgrp(STDIN_FILENO, getpid());  // Give control of stdin back to the shell
