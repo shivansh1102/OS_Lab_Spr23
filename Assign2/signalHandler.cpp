@@ -13,8 +13,6 @@ void reapProcess(int sig)
         if(currpid <= 0)         
         break;
         Pipes* currpipe = allPipes[pipeIndexMap[currpid]];
-        // cout << pipeIndexMap[currpid] << endl;
-        // cout << currpid << " " << currpipe->pgrpID << " " << foregroundPID<< endl;
         
         if(WIFSIGNALED(status) || WIFEXITED(status))  // Terminated due to interrupt or normal exit
         {
@@ -31,6 +29,10 @@ void reapProcess(int sig)
         if(currpipe->pgrpID == foregroundPID && !WIFCONTINUED(status) && currpipe->countActive == 0)
         {
             foregroundPID = 0;
+            // To allow background process due to ctrl+Z to continue in background
+            if(WIFSTOPPED(status))                   
+            // killpg(currpipe->pgrpID, SIGCONT);
+            currpipe->isBackground = true;
         }
     }
 }
@@ -52,17 +54,10 @@ void handle_ctrl_CZ(int sig)
     }
     if(sig == SIGTSTP)
     {
-        if(!allPipes.empty())
-        {
-            Pipes* currpipe = allPipes[pipeIndexMap[getpid()]];
-            currpipe->isBackground = true;
-        }
         printf("\n");
         rl_reset_line_state();
         rl_replace_line("",0);
         rl_redisplay();
-        // rl_delete(0,1);
-        // rl_redisplay();
     }
 }
 
