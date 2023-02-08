@@ -28,7 +28,7 @@ historyCls::historyCls(string filename):filename(filename){
 }
 
 historyCls::~historyCls(){
-    ofstream fout(filename, ios::trunc);
+    ofstream fout(filename);
     for (auto line : history)
     {
         fout << line << endl;
@@ -49,7 +49,7 @@ void historyCls::addHistory(string line){
 
 void historyCls::moveArrowUp(int &i){
 
-    if(i==0){
+    if(i<=0){
         return;
     }
     i--;
