@@ -1,12 +1,9 @@
 #include "pipeline.hpp"
 
-
 Pipes::Pipes(string &command) : fullCmd(trim(command)), individualCmds(getAllPipes(fullCmd)), pgrpID(0) 
 {
-    if(fullCmd.back() == '&')
-    isBackground = true;
-    else
-    isBackground = false;
+    if(fullCmd.back() == '&') isBackground = true;
+    else isBackground = false;
     countActive = individualCmds.size();
 }
 
@@ -42,7 +39,10 @@ void Pipes::executePipes()
     }
 
     vector<vector<string>> tokens = getAllVectoredTokens(individualCmds[n-1]);
+
     noChild &= runIndividualCmd(tokens, st_in, st_out, n-1);
+
+    // cout << pgrpID << endl;
             
 
     // If process is a background process, then it should not wait
@@ -54,8 +54,9 @@ void Pipes::executePipes()
         waitForForegroundProcess(pgrpID);
     
         // If ctrl+z is pressed, process was stopped using SIGSTOP, so continuing it in background
-        if(isBackground)  
-        killpg(pgrpID, SIGCONT);
+        if(isBackground){
+            killpg(pgrpID, SIGCONT);
+        }
     }
 
     tcsetpgrp(STDIN_FILENO, getpid());  // Give control of stdin back to the shell
@@ -96,11 +97,15 @@ bool Pipes::runIndividualCmd(vector<vector<string>> &cmdTokens, int prev_out, in
 
     if (strcmp(command[0], "cd") == 0)             // handling "cd" : it will be done by parent itself, no need to fork()
     {
+        int x;
         if (command[1] == NULL)
-        chdir(getenv("HOME"));
+        x = chdir(getenv("HOME"));
         else
-        chdir(command[1]);
+        x = chdir(command[1]);
 
+        if(x<0){
+            cout<<strerror(errno)<<endl;
+        }
         return true;
     }
     
@@ -151,15 +156,14 @@ bool Pipes::runIndividualCmd(vector<vector<string>> &cmdTokens, int prev_out, in
             dup2(prev_out, 0);
             close(prev_out);
         }
-        if (command[0] == NULL)
-        exit(0);
+        if (command[0] == NULL) _exit(0);
         else
         {
             if(execvp(command[0], command) < 0)
-            cout << "O bhai bhai bhai..." << endl;
+            cout << "O bhai bhai bhai... "<<strerror(errno) << endl;  // if some error then print it
         }
-        // If some error occurs in doing execvp()
-        exit(1);
+        // If some error occurs in doing execvp(), then exit with errno
+        _exit(0);     
     }
     else                               // parent process
     {
