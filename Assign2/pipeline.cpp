@@ -38,7 +38,7 @@ void Pipes::executePipes()
         close(fd[1]); // closing old pipe   
     }
 
-    vector<vector<string>> tokens = getAllVectoredTokens(individualCmds[n-1]);
+    vector<vector<string> > tokens = getAllVectoredTokens(individualCmds[n-1]);
 
     noChild &= runIndividualCmd(tokens, st_in, st_out, n-1);
 
@@ -62,7 +62,7 @@ void Pipes::executePipes()
     tcsetpgrp(STDIN_FILENO, getpid());  // Give control of stdin back to the shell
 }
 // return true when it didn't fork() like for cd
-bool Pipes::runIndividualCmd(vector<vector<string>> &cmdTokens, int prev_out, int next_in, int idx)
+bool Pipes::runIndividualCmd(vector<vector<string> > &cmdTokens, int prev_out, int next_in, int idx)
 {
     bool write_to_file_flag = false, read_from_file_flag = false; int n = 0;
     string write_to_file, read_from_file;
@@ -81,7 +81,7 @@ bool Pipes::runIndividualCmd(vector<vector<string>> &cmdTokens, int prev_out, in
                 read_from_file_flag = true;
             }
         }
-        if (!read_from_file_flag && !write_to_file_flag)
+        if (!read_from_file_flag && !write_to_file_flag && cmdTokens[i][0]!="&")
         n += cmdTokens[i].size();
     }
     char *command[n + 1];
