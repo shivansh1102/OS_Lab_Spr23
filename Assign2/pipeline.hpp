@@ -1,3 +1,5 @@
+// header file for pipeline.cpp
+
 #ifndef __PIPELINE_H
 #define __PIPELINE_H
 
@@ -5,6 +7,7 @@
 #include "signalHandler.hpp"
 #include <fcntl.h>
 #include <signal.h>
+#include <errno.h>
  
 class Pipes
 {
