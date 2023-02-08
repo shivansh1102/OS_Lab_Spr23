@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fcntl.h>
 #include <unistd.h>
-
+using namespace std;
 int main(int argc, char *argv[])
 {
   int fd;
@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 
   if (argc != 2)
   {
-    std::cerr << "Usage: " << argv[0] << " <file>" << std::endl;
+    cerr << "Usage: " << argv[0] << " <file>" << endl;
     return 1;
   }
 
@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     perror("open");
     return 1;
   }
-  getchar();
+  
   lock.l_type = F_WRLCK;
   lock.l_whence = SEEK_SET;
   lock.l_start = 0;
@@ -31,16 +31,16 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  std::cout << "Locked file " << argv[1] << std::endl;
-  getchar();
+ cout << "Locked file " << argv[1] << std::endl;
+ while(1){
+ }
 
-  // lock.l_type = F_UNLCK;
-  // if (fcntl(fd, F_SETLK, &lock) == -1) {
-  //   perror("fcntl");
-  //   return 1;
-  // }
-
-  close(fd);
+//   lock.l_type = F_UNLCK;
+//   if (fcntl(fd, F_SETLK, &lock) == -1) {
+//     perror("fcntl");
+//     return 1;
+//   }
+//   close(fd);
 
   return 0;
 }   
