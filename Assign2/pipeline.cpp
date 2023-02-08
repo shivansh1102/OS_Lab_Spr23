@@ -108,6 +108,11 @@ bool Pipes::runIndividualCmd(vector<vector<string>> &cmdTokens, int prev_out, in
         }
         return true;
     }
+    else if (cmdTokens[0][0] == "delep")
+    {
+        delep(cmdTokens);
+        return true;
+    }
     
     int childpid = fork();
     if(childpid < 0)
