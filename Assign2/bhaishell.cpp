@@ -10,12 +10,19 @@ using namespace std;
 vector<Pipes*> allPipes;
 map<pid_t, int>pipeIndexMap;
 const pid_t rootpid = getpid();
+string currText = "";
 
-historyCls history(".history.txt");
+historyCls history;
 int i=history.history.size();
 
 int moveUpArrow(int count, int key){
     
+    if(i==0){
+        return 0;
+    }
+    if(i==history.history.size()){
+        currText = rl_line_buffer;
+    }
     history.moveArrowUp(i);
     rl_replace_line(history.history[i].c_str(), 0);
     rl_redisplay();
@@ -24,19 +31,20 @@ int moveUpArrow(int count, int key){
 }
 
 int moveDownArrow(int count, int key){
-    if(i==history.history.size()-1){
-        rl_replace_line("", 0);
+    int x = history.history.size();
+    x -= 1;
+    if(i==x){
+        rl_replace_line(currText.c_str(), 0);
         rl_redisplay();
         rl_end_of_line(count, key);
+        i++;
         return 0;
     }
+    if(i>x){
+        return 0;
+    }
+
     history.moveArrowDown(i);
-    if(i>history.history.size()-1){
-        rl_replace_line("", 0);
-        rl_redisplay();
-        rl_end_of_line(count, key);
-        return 0;
-    }
     rl_replace_line(history.history[i].c_str(), 0);
     rl_redisplay();
     rl_end_of_line(count, key);
@@ -54,7 +62,8 @@ int main(){
 
     rl_bind_keyseq("\\e[A", moveUpArrow);
     rl_bind_keyseq("\\e[B", moveDownArrow);
-    
+    rl_bind_keyseq("\001", rl_beg_of_line);
+    rl_bind_keyseq("\005", rl_end_of_line);
 
 
     struct sigaction action;
