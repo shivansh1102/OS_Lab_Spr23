@@ -1,14 +1,12 @@
+// header file for signalHandlers.cpp
+
 #ifndef __SIGNAL_HANDLERS_H
 #define __SIGNAL_HANDLERS_H
 
-#include <sys/inotify.h>
-#include <sys/types.h>
 #include <sys/wait.h>
-#include <unistd.h>
 #include <map>
 #include "pipeline.hpp"
 #include <readline/readline.h>
-// #include "bhaishell.cpp"
 
 void reapProcess(int sig);
 void handle_ctrl_CZ(int sig) ;
