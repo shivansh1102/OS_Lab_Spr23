@@ -1,3 +1,5 @@
+// header file for history.cpp
+
 #ifndef HISTORY_HPP
 #define HISTORY_HPP
 
@@ -5,6 +7,7 @@
 #include <fstream>
 #include <string>
 #include <iostream>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -17,7 +20,7 @@ class historyCls{
     string filename;
     public:
         deque<string> history;
-        historyCls(string filename);
+        historyCls(string filename = getenv("HOME") + string("/.bhaiSh_history"));
         void addHistory(string line);
         void moveArrowUp(int &i);
         void moveArrowDown(int &i);
