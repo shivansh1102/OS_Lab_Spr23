@@ -119,6 +119,9 @@ vector<string> getAllPipes(string &command)
         }
         else if (command[i] == '\\')
         {
+            if((command[i+1]==' ' || command[i+1]=='*' || command[i+1]=='?')){
+                temp += command[i];
+            }
             temp += command[i + 1];
             i++;
             continue;
@@ -231,7 +234,6 @@ vector<vector<string>> getAllVectoredTokens(string &commands)
     int doubleQuotes = 0;
     int singleQuotes = 0;
     int tokenContainsReg = 0;
-
     for (int i = 0; i < commands.length(); ++i)
     {
         if (commands[i] == '"')
@@ -246,13 +248,11 @@ vector<vector<string>> getAllVectoredTokens(string &commands)
         }
         else if (commands[i] == '\\')
         {
-            if (i+1<commands.length()  && (commands[i + 1] == '*' || commands[i + 1] == '?'))
-            {
-                tokenContainsReg = 1;
-            }
-            if(i+1<commands.length() && commands[i + 1] == ' '){
-                temp+=commands[i];
-            }
+
+            // if(i+1<commands.length() && commands[i + 1] == ' '){
+            //     temp+=commands[i];
+            // }
+            if(i+1<commands.length() &&  commands[i+1]!=' ')temp+=commands[i];
             temp += commands[i + 1];
             i++;
             continue;
