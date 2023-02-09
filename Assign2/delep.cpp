@@ -130,6 +130,7 @@ void delep(vector<vector<string>> &cmd)
 
     // wait(NULL);
     get_from_child(p[0]);
+    waitpid(pd,NULL,0);
     cout << "Kill these processes and delete the file (y/n)? ";
     string response;
     cin >> response;
@@ -148,6 +149,6 @@ void delep(vector<vector<string>> &cmd)
             exit(0);
         }
         pid_list_req.clear();
+        waitpid(pd,NULL,0);
     }
-
 }
