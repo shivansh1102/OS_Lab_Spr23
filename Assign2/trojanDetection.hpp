@@ -1,5 +1,5 @@
-#ifndef __TROJANDETECT_HPP
-#define __TROJANDETECT_HPP
+#ifndef __TROJANDETECTION_HPP
+#define __TROJANDETECTION_HPP
 
 #include <iostream>
 #include <map>
