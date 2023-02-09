@@ -1,7 +1,13 @@
 #ifndef __TROJANDETECT_HPP
 #define __TROJANDETECT_HPP
 
-#include <bits/stdc++.h>
+#include <iostream>
+#include <map>
+#include <vector>
+#include <queue>
+#include <set>
+#include <fstream>
+#include <unistd.h>
 using namespace std;
 
 
