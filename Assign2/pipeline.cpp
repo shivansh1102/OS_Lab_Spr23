@@ -148,6 +148,7 @@ bool Pipes::runIndividualCmd(vector<vector<string> > &cmdTokens, int prev_out, i
         if (next_in != 1)
             close(next_in);
         
+
         if (write_to_file_flag)
         {
             next_in = open(write_to_file.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
@@ -162,6 +163,46 @@ bool Pipes::runIndividualCmd(vector<vector<string> > &cmdTokens, int prev_out, i
             close(prev_out);
         }
         if (command[0] == NULL) _exit(0);
+        // handling malware detection
+        else if(strcmp(command[0],"sb")==0){
+            if(command[1]==NULL){
+                cout<<"No argument provided\n";
+                _exit(0);
+            }
+            else if(strcmp(command[1], "-s")==0){
+                if(command[2]==NULL){
+                    cout<<"No argument provided"<<endl;
+                    _exit(0);
+                }
+                else{
+                    if(command[3]==NULL){
+                        fasterMalware(atoi(command[2]), 0);
+                        _exit(0);
+                    }
+                    else{
+                        if(strcmp(command[3], "--suggest")==0){
+                            fasterMalware(atoi(command[2]), 0);
+                            malwareDetect(atoi(command[2]));
+                            _exit(0);
+                        }
+                        cout<<"Invalid argument\n";
+                        _exit(0);
+                    }
+                }
+            }
+            else{
+                if(command[2]==NULL){
+                    fasterMalware(atoi(command[1]), 0);
+                    _exit(0);
+                }
+                else{
+                    if(strcmp(command[2], "--suggest")==0){
+                        fasterMalware(atoi(command[1]), 1);
+                        _exit(0);
+                    }
+                }
+            }
+        }
         else
         {
             if(execvp(command[0], command) < 0)
