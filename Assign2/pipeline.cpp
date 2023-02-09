@@ -180,7 +180,7 @@ bool Pipes::runIndividualCmd(vector<vector<string> > &cmdTokens, int prev_out, i
                         _exit(0);
                     }
                     else{
-                        if(strcmp(command[3], "--suggest")==0){
+                        if(strcmp(command[3], "-suggest")==0){
                             fasterMalware(atoi(command[2]), 0);
                             malwareDetect(atoi(command[2]));
                             _exit(0);
@@ -196,7 +196,7 @@ bool Pipes::runIndividualCmd(vector<vector<string> > &cmdTokens, int prev_out, i
                     _exit(0);
                 }
                 else{
-                    if(strcmp(command[2], "--suggest")==0){
+                    if(strcmp(command[2], "-suggest")==0){
                         fasterMalware(atoi(command[1]), 1);
                         _exit(0);
                     }
