@@ -1,4 +1,4 @@
-#include "trojanDetection.hpp"
+#include "trojanDetect.hpp"
 
 
 // maps pid of a process to its cpu time
@@ -126,6 +126,7 @@ pid_t detectTrojan(pid_t suspectedUser)
 
 void malwareDetect(int pid){
     pid_t rootTrojan = detectTrojan(pid);
+    cout<<"Trojan process is: ";
     cout << rootTrojan << endl;
 }
 
