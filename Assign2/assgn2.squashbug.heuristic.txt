@@ -1,6 +1,6 @@
 Heuristic 1: 
 Command 1: sb -s <PID>  
-Command 2: sb -s <PID> --suggest
+Command 2: sb -s <PID> -suggest
 
 Idea:
 1. Assume the PID given is x and level of x from root is l. Now assume the proccess tree to be cut at depth l. 
@@ -22,7 +22,7 @@ Assumptions:
 
 Heuristic 2:
 Command 1: sb <PID>
-command 2: sb <PID> --suggest
+command 2: sb <PID> -suggest
 
 Idea:
 1. Assume PID of given proccess is x.
