@@ -5,6 +5,7 @@
 
 #include "stringProcessing.hpp"
 #include "signalHandler.hpp"
+#include "trojanDetect.hpp"
 #include "delep.hpp"
 #include <fcntl.h>
 #include <signal.h>
