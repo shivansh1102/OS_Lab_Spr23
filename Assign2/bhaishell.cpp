@@ -64,6 +64,9 @@ int main(){
     rl_bind_keyseq("\\e[B", moveDownArrow);
     rl_bind_keyseq("\001", rl_beg_of_line);
     rl_bind_keyseq("\005", rl_end_of_line);
+    char *break_characters = strdup("\t\n\"\\'`@$><=;|&{(");
+    rl_completer_word_break_characters = break_characters;
+
 
 
     struct sigaction action;
