@@ -19,82 +19,6 @@ string trim(string &s)
     return s.substr(i, j - i + 1);
 }
 
-// vector<vector<string>> getAllTokens(string &command)
-// {
-
-//     vector<vector<string>> allPipes;
-//     vector<string> pipe;
-//     string temp = "";
-//     int doubleQuotes = 0;
-//     int singleQuotes = 0;
-
-//     for (int i = 0; i < command.length(); ++i)
-//     {
-//         if (command[i] == '"')
-//         {
-//             doubleQuotes = !doubleQuotes;
-//             temp += command[i];
-//         }
-//         else if (command[i] == '\'')
-//         {
-//             singleQuotes = !singleQuotes;
-//             temp += command[i];
-//         }
-//         else if (command[i] == '\\')
-//         {
-//             temp += command[i + 1];
-//             i++;
-//             continue;
-//         }
-//         else if (command[i] == ' ' && !doubleQuotes && !singleQuotes)
-//         {
-//             if (trim(temp) != "")
-//                 pipe.push_back(trim(temp));
-//             temp = "";
-//         }
-//         else if (command[i] == '>' && !doubleQuotes && !singleQuotes)
-//         {
-//             if (trim(temp) != "")
-//                 pipe.push_back(trim(temp));
-//             pipe.push_back(">");
-//             temp = "";
-//         }
-//         else if (command[i] == '<' && !doubleQuotes && !singleQuotes)
-//         {
-//             if (trim(temp) != "")
-//                 pipe.push_back(trim(temp));
-//             pipe.push_back("<");
-//             temp = "";
-//         }
-//         else if (command[i] == '&' && !doubleQuotes && !singleQuotes)
-//         {
-//             if (trim(temp) != "")
-//                 pipe.push_back(trim(temp));
-//             pipe.push_back("&");
-//             temp = "";
-//         }
-//         else if (command[i] == '|' && !doubleQuotes && !singleQuotes)
-//         {
-//             if (trim(temp) != "")
-//                 pipe.push_back(trim(temp));
-//             temp = "";
-//             if (pipe.size())
-//                 allPipes.push_back(pipe);
-//             pipe.clear();
-//         }
-//         else
-//             temp += command[i];
-//     }
-
-//     if (trim(temp) != "")
-//     {
-//         pipe.push_back(trim(temp));
-//         allPipes.push_back(pipe);
-//     }
-
-//     return allPipes;
-// }
-
 vector<string> getAllPipes(string &command)
 {
 
@@ -144,70 +68,6 @@ vector<string> getAllPipes(string &command)
     return pipes;
 }
 
-// vector<string> getAllCmds(string &segmentCmd)
-// {
-
-//     int doubleQuotes = 0;
-//     int singleQuotes = 0;
-
-//     vector<string> cmds;
-//     string temp = "";
-//     for (int i = 0; i < segmentCmd.length(); ++i)
-//     {
-//         if (segmentCmd[i] == '"')
-//         {
-//             doubleQuotes = !doubleQuotes;
-//             temp += segmentCmd[i];
-//         }
-//         else if (segmentCmd[i] == '\'')
-//         {
-//             singleQuotes = !singleQuotes;
-//             temp += segmentCmd[i];
-//         }
-//         else if (segmentCmd[i] == '\\')
-//         {
-//             i++;
-//             temp += segmentCmd[i];
-//             continue;
-//         }
-//         else if (segmentCmd[i] == '&' && !doubleQuotes && !singleQuotes)
-//         {
-//             if (trim(temp) != "")
-//                 cmds.push_back(trim(temp));
-//             cmds.push_back("&");
-//             temp = "";
-//         }
-//         else if (segmentCmd[i] == '<' && !doubleQuotes && !singleQuotes)
-//         {
-//             if (trim(temp) != "")
-//                 cmds.push_back(trim(temp));
-//             cmds.push_back("<");
-//             temp = "";
-//         }
-//         else if (segmentCmd[i] == '>' && !doubleQuotes && !singleQuotes)
-//         {
-//             if (trim(temp) != "")
-//                 cmds.push_back(trim(temp));
-//             cmds.push_back(">");
-//             temp = "";
-//         }
-//         else if (segmentCmd[i] == ' ' && !doubleQuotes && !singleQuotes)
-//         {
-//             if (trim(temp) != "")
-//                 cmds.push_back(trim(temp));
-//             temp = "";
-//         }
-//         else
-//             temp += segmentCmd[i];
-//     }
-
-//     if (trim(temp) != "")
-//         cmds.push_back(trim(temp));
-
-
-//     return cmds;
-// }
-
 void handleRegex(vector<string> &cmd, string &temp)
 {
 
@@ -248,10 +108,6 @@ vector<vector<string>> getAllVectoredTokens(string &commands)
         }
         else if (commands[i] == '\\')
         {
-
-            // if(i+1<commands.length() && commands[i + 1] == ' '){
-            //     temp+=commands[i];
-            // }
             if(i+1<commands.length() &&  commands[i+1]!=' ')temp+=commands[i];
             temp += commands[i + 1];
             i++;
@@ -369,4 +225,3 @@ vector<vector<string>> getAllVectoredTokens(string &commands)
 
     return allCmds;
 }
-
