@@ -23,15 +23,17 @@ void allocateNewEdges(const int &newEdges)
 
 void solveProducer()
 {
-    set<pair<int, int>> degreeNode;
-    // Adding (degree, node) to a set for finding popular nodes later
-    for(int i = 0; i < (*currNodes); i++)
-    {
-        cout << i << " " << nodes[i].degree << endl;
-        degreeNode.insert({nodes[i].degree, i});
-    }
+    // Handling probability for choosing a node while adding a new edge
+    // Generate a random number between 1 & sum of degrees
+    // If it is between 1 & degree[0], match to node 0
+    // Else if between degree[0]+1 & degree[0]+degree[1], match to node 1
+    // and so on...
 
-    int newNodes, newEdges;
+    vector<int>prefixDegreeSum((*currNodes));
+    for(int i = 0; i < (*currNodes); i++)
+    prefixDegreeSum[i] = nodes[i].degree + ((i > 0) ? prefixDegreeSum[i-1] : 0);
+
+    int newNodes, newEdges, otherNode, temp;
     while(1)
     {
         sleep(50);
@@ -43,15 +45,14 @@ void solveProducer()
             newEdges = rand()%20+1; // [0-19] + 1 = [1-20]
             allocateNewEdges(newEdges);
 
-            // Adding most popular nodes
-            auto it = degreeNode.end(); it--;
             for(int j = 0; j < newEdges; j++)
             {
-                addEdge((*currNodes)+i, it->second); // it->second stores the node number
-                it--;
+                temp = rand()%prefixDegreeSum.back() + 1;
+                otherNode = lower_bound(prefixDegreeSum.begin(), prefixDegreeSum.end(), temp) - prefixDegreeSum.begin();
+                addEdge((*currNodes)+i, otherNode); 
             }
 
-            degreeNode.insert({newEdges, (*currNodes)+i});
+            prefixDegreeSum.push_back(prefixDegreeSum.back()+newEdges); // Adding degree of newly added node
         }
         *currNodes = (*currNodes) + newNodes;
     }
