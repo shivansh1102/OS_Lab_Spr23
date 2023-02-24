@@ -38,7 +38,7 @@ struct nodeData
 };
 
 extern void solveProducer();
-extern void solveConsumer();
+extern void solveConsumer(int);
 
 void addEdge(const int &node1, const int &node2);
 void populateGraph();
