@@ -1,3 +1,6 @@
+#ifndef __MAIN_HPP
+#define __MAIN_HPP
+
 #include <iostream>
 #include <unistd.h>
 #include <sys/ipc.h>
@@ -33,14 +36,12 @@ struct nodeData
         head = -1;
     }
 };
-nodeData *nodes;
-edgeData* edges;
-
-char* bufNode;  // pointer to shared memory storing nodes
-char* bufEdge;  // pointer to shared memory storing edges
-
-int currNodes; // to store count of current nodes
-int currEdges; // to store count of current edges
 
 extern void solveProducer();
 extern void solveConsumer();
+
+void addEdge(const int &node1, const int &node2);
+void populateGraph();
+
+
+#endif
