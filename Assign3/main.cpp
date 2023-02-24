@@ -1,14 +1,26 @@
 #include "main.hpp"
+#include "producer.hpp"
+
+nodeData *nodes;
+edgeData* edges;
+
+char* bufNode;  // pointer to shared memory storing nodes
+char* bufEdge;  // pointer to shared memory storing edges
+
+int currNodes; // to store count of current nodes
+int currEdges; // to store count of current edges
 
 void addEdge(const int &node1, const int &node2)
 {
     // adding directed edge node1->node2
+    nodes[node1].degree++;
     edges[currEdges].to = node2;
     edges[currEdges].nxt = nodes[node1].head;
     nodes[node1].head = currEdges;
     currEdges++;
 
     // adding directed edge node2->node1
+    nodes[node2].degree++;
     edges[currEdges].to = node1;
     edges[currEdges].nxt = nodes[node2].head;
     nodes[node2].head = currEdges;
@@ -43,7 +55,7 @@ void populateGraph()
     }
     
     edgeData* temp2;
-    for(int i = 0; i < _edges.size(); i++)
+    for(int i = 0; i < 2*_edges.size(); i++) // multiplied by 2 because each edge will be stored as 2 directed edge
     {
         if(i == 0)
         {
@@ -54,7 +66,7 @@ void populateGraph()
         temp2 = new(bufEdge + i*sizeof(edgeData)) edgeData();
         temp2++;
     }
-    
+
     currEdges = 0;
     for(auto &edge : _edges)
     {
@@ -62,6 +74,7 @@ void populateGraph()
     }
 
     file.close();
+    _edges.clear();
 }
 
 
@@ -103,20 +116,27 @@ int main()
         solveProducer();
         exit(0);
     }
-    vector<pid_t>consumerPIDs(10);
-    for(int i = 0; i < 10; i++)
-    {
-        consumerPIDs[i] = fork();
-        if(consumerPIDs[i] == 0)
-        {
-            solveConsumer();
-            exit(0);
-        }
-    }
+    // vector<pid_t>consumerPIDs(10);
+    // for(int i = 0; i < 10; i++)
+    // {
+    //     consumerPIDs[i] = fork();
+    //     if(consumerPIDs[i] == 0)
+    //     {
+    //         solveConsumer();
+    //         exit(0);
+    //     }
+    // }
 
     waitpid(producerPID, NULL, 0);
-    for(int i = 0; i < 10; i++)
-    waitpid(consumerPIDs[i], NULL, 0);
+    // for(int i = 0; i < 10; i++)
+    // waitpid(consumerPIDs[i], NULL, 0);
 
+    // consumerPIDs.clear();
+    
+    shmdt(bufNode);
+    shmdt(bufEdge);
+
+    shmctl(shmid1, IPC_RMID, NULL);
+    shmctl(shmid2, IPC_RMID, NULL);
     return 0;
 }
