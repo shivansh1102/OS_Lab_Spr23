@@ -14,7 +14,7 @@ void printShortestPath(const int &node, ofstream& outFile, const vector<int>&dis
     outFile << "Distance: " << dist[node] << endl;
 }
 
-void multiSourceDijkstra(const vector<int>& sources, const int &idx, const int &iter, ofstream& outFile)
+void multiSourceDijkstra(const vector<int>& sources, const int &iter, ofstream& outFile)
 {
     const int INF = 1e9;
     int N = (*currNodes);
@@ -29,7 +29,7 @@ void multiSourceDijkstra(const vector<int>& sources, const int &idx, const int &
         parent[source] = source;
     }
 
-    int curr, currdis, neigh;
+    int curr, currdis, neigh; int maxcnt = 0, sum = 0;
     while(!pqu.empty())
     {
         curr = pqu.top().second;
@@ -38,9 +38,10 @@ void multiSourceDijkstra(const vector<int>& sources, const int &idx, const int &
 
         if(dist[curr] < currdis)
         continue;
-
+        int cnt = 0;
         for(int currEdgeIndex = nodes[curr].head; currEdgeIndex != -1; currEdgeIndex = edges[currEdgeIndex].nxt)
         {
+            cnt++;
             neigh = edges[currEdgeIndex].to;
             if(dist[neigh] > dist[curr] + 1)
             {
@@ -49,8 +50,12 @@ void multiSourceDijkstra(const vector<int>& sources, const int &idx, const int &
                 pqu.push({dist[neigh], neigh});
             }
         }
+        cout << cnt << endl;
+        sum += cnt;
+        maxcnt = max(maxcnt, cnt);
     }
-
+    cout << "maxcnt : " << maxcnt << endl;
+    cout << "avg: " << sum/4038 << endl;
     outFile << endl <<  "---------------------------------- ITERATION: " << iter << " ----------------------------------" << endl;
     
     for(int i = 0; i < N; i++)
@@ -62,6 +67,12 @@ void multiSourceDijkstra(const vector<int>& sources, const int &idx, const int &
 
 void solveConsumer(int idx)
 {
+    // Inserting all source nodes corresponding to current consumer in a vector
+    int cntSources = (*currNodes)/10;
+    vector<int>sources(cntSources);
+    for(int i = idx*cntSources; i < (idx+1)*cntSources; i++)
+    sources[i-idx*cntSources] = i;
+
     string outFileName = "output";
     outFileName += ((char)('0' + idx));
     outFileName += ".txt";
@@ -74,20 +85,25 @@ void solveConsumer(int idx)
         exit(1);
     }
 
-    int iter = 1;
+    /*
+        ASSUMPTION: 1/10 of New nodes added by producer each time will be added as sources for each consumer
+    */
+    int iter = 1, prevTotalNodes, newNodes;
     while(1)
     {
-        // Inserting all source nodes corresponding to current consumer in a vector
-        int cntSources = (*currNodes)/10;
-        vector<int>sources(cntSources);
-        for(int i = idx*cntSources; i < (idx+1)*cntSources; i++)
-        sources[i-idx*cntSources] = i;
-
-        multiSourceDijkstra(sources, idx, iter, outFile);
-        sources.clear();
+        if(iter > 1)    // Adding new nodes to sources  
+        {
+            newNodes = (*currNodes) - prevTotalNodes;
+            for(int i = idx*newNodes/10; i < (idx+1)*newNodes/10; i++)
+            sources.push_back(prevTotalNodes + i);
+        }
+        multiSourceDijkstra(sources, iter, outFile);
+        
         iter++;
+        prevTotalNodes = *currNodes;
         sleep(30);
     }
 
+    sources.clear();
     outFile.close();
 }
