@@ -50,6 +50,10 @@ void solveProducer()
                 temp = rand()%prefixDegreeSum.back() + 1;
                 otherNode = lower_bound(prefixDegreeSum.begin(), prefixDegreeSum.end(), temp) - prefixDegreeSum.begin();
                 addEdge((*currNodes)+i, otherNode); 
+
+                // Now, as degree of otherNode has increased, updating prefixDegreeSum[] accordingly
+                for(int k = otherNode; k < prefixDegreeSum.size(); k++)
+                prefixDegreeSum[k]++;
             }
 
             prefixDegreeSum.push_back(prefixDegreeSum.back()+newEdges); // Adding degree of newly added node
