@@ -144,10 +144,13 @@ int main(int argc, char* argv[])
     }
     currEdges = currNodes+1;
     
+    // Marking the segment to be destroyed. It will get destroyed only after 
+    // count of active processes attached to it become 0.
+    // Writing this here(above) helps when we exit through ctrl+c.
     shmctl(shmid1, IPC_RMID, NULL);
     shmctl(shmid2, IPC_RMID, NULL);
     shmctl(shmid3, IPC_RMID, NULL);
-    
+
     populateGraph();
 
     pid_t producerPID = fork();
