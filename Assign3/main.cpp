@@ -83,9 +83,21 @@ void populateGraph()
 }
 
 
-int main()
+int main(int argc, char* argv[])
 {
     srand(time(NULL));  // seeding random number generator with current time
+
+    bool flagOptimize = false;
+    if(argc > 1)
+    {
+        if(strcmp(argv[1], "-optimize") == 0)
+        flagOptimize = true;
+        else
+        {
+            cout << "Invalid flag!" << endl;
+            exit(1);
+        }
+    }
 
     const int MAXNODES = 10000, MAXEDGES = 1000000;
     int shmid1; // to store nodes
@@ -131,7 +143,11 @@ int main()
         exit(1);
     }
     currEdges = currNodes+1;
-
+    
+    shmctl(shmid1, IPC_RMID, NULL);
+    shmctl(shmid2, IPC_RMID, NULL);
+    shmctl(shmid3, IPC_RMID, NULL);
+    
     populateGraph();
 
     pid_t producerPID = fork();
@@ -149,7 +165,7 @@ int main()
         consumerPIDs[i] = fork();
         if(consumerPIDs[i] == 0)
         {
-            solveConsumer(i);
+            solveConsumer(i, flagOptimize);
             shmdt(bufNode);
             shmdt(bufEdge);
             shmdt(currNodes);
@@ -167,8 +183,5 @@ int main()
     shmdt(bufEdge);
     shmdt(currNodes);
 
-    shmctl(shmid1, IPC_RMID, NULL);
-    shmctl(shmid2, IPC_RMID, NULL);
-    shmctl(shmid3, IPC_RMID, NULL);
     return 0;
 }
