@@ -85,6 +85,8 @@ void populateGraph()
 
 int main()
 {
+    srand(time(NULL));  // seeding random number generator with current time
+
     const int MAXNODES = 10000, MAXEDGES = 1000000;
     int shmid1; // to store nodes
     int shmid2; // to store edges
