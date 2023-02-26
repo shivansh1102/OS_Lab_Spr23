@@ -1,7 +1,6 @@
 #ifndef __PRODUCER_HPP
 #define __PRODUCER_HPP
 
-#include <set>
 #include "main.hpp"
 
 extern struct nodeData *nodes;
@@ -14,7 +13,7 @@ extern int *currNodes; // to store count of current nodes
 extern int *currEdges; // to store count of current edges
 
 void solveProducer();
-void allocateNewEdges(const int &newEdges);
-void allocateNewNodes(const int &newNodes);
+void allocateNewEdges(const int &);
+void allocateNewNodes(const int &);
 
 #endif
