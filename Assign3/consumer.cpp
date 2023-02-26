@@ -1,6 +1,10 @@
 #include "consumer.hpp"
 
-void printShortestPath(const int &node, ofstream& outFile, const vector<int>&dist, const vector<int>& parent)
+const int INF = 1e9;
+vector<int>dist;    // to store shortest distance of each node from sources
+vector<int>parent;  // to store parent of each node in shortest path
+
+void printShortestPath(const int &node, ofstream& outFile)
 {
     outFile << "Node " << node << ": " ;
     int temp = node;
@@ -16,10 +20,9 @@ void printShortestPath(const int &node, ofstream& outFile, const vector<int>&dis
 
 void multiSourceDijkstra(const vector<int>& sources, const int &iter, ofstream& outFile)
 {
-    const int INF = 1e9;
     int N = (*currNodes);
-    vector<int>dist(N, INF);    // to store shortest distance of each node from sources
-    vector<int>parent(N);   // to store parent of each node in shortest path
+    dist.assign(N, INF);
+    parent.assign(N, -1);
     priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>>pqu;
 
     for(int source : sources)
@@ -54,13 +57,13 @@ void multiSourceDijkstra(const vector<int>& sources, const int &iter, ofstream& 
     outFile << endl <<  "---------------------------------- ITERATION: " << iter << " ----------------------------------" << endl;
     
     for(int i = 0; i < N; i++)
-    printShortestPath(i, outFile, dist, parent);
+    printShortestPath(i, outFile);
 
     dist.clear();
     parent.clear();
 }
 
-void solveConsumer(int idx)
+void solveConsumer(int idx, const bool &flagOptimize)
 {
     // Inserting all source nodes corresponding to current consumer in a vector
     int cntSources = (*currNodes)/10;
@@ -94,6 +97,7 @@ void solveConsumer(int idx)
         ASSUMPTION: 1/10 of New nodes added by producer each time will be added as sources for each consumer
     */
     int iter = 1, prevTotalNodes, newNodes;
+    vector<int>newSources;
     while(1)
     {
         if(iter > 1)    // Adding new nodes to sources  
@@ -102,22 +106,152 @@ void solveConsumer(int idx)
             if(idx < 9)
             {
                 for(int i = idx*newNodes/10; i < (idx+1)*newNodes/10; i++)
-                sources.push_back(prevTotalNodes + i);
+                {
+                    sources.push_back(prevTotalNodes + i);
+                    if(flagOptimize)
+                    newSources.push_back(prevTotalNodes + i);
+                }
             }
             else        // if newNodes is not divisible by 10, then adding all remaining at the end to last consumer
             {
                 for(int i = idx*newNodes/10; i < newNodes; i++)
-                sources.push_back(prevTotalNodes + i);
+                {
+                    sources.push_back(prevTotalNodes + i);
+                    if(flagOptimize)
+                    newSources.push_back(prevTotalNodes + i);
+                }
             }
         }
 
+        if(flagOptimize && iter > 1)
+        optimizedSP(sources, newSources, newNodes, iter, outFile);
+        else
         multiSourceDijkstra(sources, iter, outFile);
         
         iter++;
         prevTotalNodes = *currNodes;
+        newSources.clear();
         sleep(30);
     }
 
     sources.clear();
     outFile.close();
+}
+
+void optimizedSP(const vector<int>& sources, const vector<int>& newSources, const int& newNodes, const int &iter, ofstream &outFile)
+{
+    int N = (*currNodes);
+    // First adding dist[] values of all new nodes as INF
+    for(int i = 0; i < newNodes; i++)
+    {
+        dist.push_back(INF);
+        parent.push_back(-1);
+    }
+
+    // Now, making dist[] values of new source nodes as 0
+    for(auto newSource : newSources)
+    {
+        dist[newSource] = 0;
+        parent[newSource] = newSource;
+    }
+
+    // Now, running a PRUNED MULTISOURCE BFS from new source nodes to propogate their effect
+    queue<int>qu; int curr, neigh, currdis;
+    for(auto newSource : newSources)
+    qu.push(newSource);
+
+    while(!qu.empty())
+    {
+        curr = qu.front();
+        qu.pop();
+        for(int currEdgeIndex = nodes[curr].head; currEdgeIndex != -1; currEdgeIndex = edges[currEdgeIndex].nxt)
+        {
+            neigh = edges[currEdgeIndex].to;
+            if(dist[neigh] > dist[curr] + 1)
+            {
+                dist[neigh] = dist[curr] + 1;
+                parent[neigh] = curr;
+                qu.push(neigh);
+            }
+        }
+    }  
+
+    bool updated;
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>>pqu;
+    vector<pair<int, int>> neighDist; // stores (dist[], node) for each neighbour
+
+    // Now, updating the values of remaining new nodes added in this iteration
+    // As dist[] values for all nodes other than newly added nodes are final,
+    // dist[] values for newly added non-source nodes can be found by 1-hop distance, ie, just iterating over its neighbours
+    // Also, processing in order the nodes were added, so that we can consider edges between newly added nodes
+    // When we are considering ith newly added node, dist[] values for 1st, 2nd, ... , (i-1)th node are final
+    for(int i = N-newNodes; i < N; i++)
+    {
+        for(int currEdgeIndex = nodes[i].head; currEdgeIndex != -1; currEdgeIndex = edges[currEdgeIndex].nxt)
+        {
+            neigh = edges[currEdgeIndex].to;
+            if(dist[i] > 1 + dist[neigh])
+            {
+                dist[i] = 1 + dist[neigh];
+                parent[i] = neigh;
+            }
+            neighDist.push_back({dist[neigh], neigh});
+        }
+
+        // Now, consider this node had neighbours a, b, c, d
+        // We should consider change in them also due to addition of this node
+        // We can write dist[a] = min({dist[a], 2 + dist[b], 2 + dist[c], 2 + dist[d]})
+        // and similarly for b, c & d.
+        // Now, we want the order in which we can process these nodes.
+        // It is obvious that dist[] value for that node won't change due to these equations
+        // who was having min dist[] value earlier.
+        // So, propagating the effect in increasing order of dist[] values.
+        sort(neighDist.begin(), neighDist.end());
+        for(int i = 1; i < neighDist.size(); i++)
+        {
+            updated = false;
+            for(int j = i-1; j >= 0; j--)
+            {
+                if(dist[neighDist[i].second] > 2 + dist[neighDist[j].second])
+                {
+                    updated = true;
+                    dist[neighDist[i].second] = 2 + dist[neighDist[j].second];
+                    parent[neighDist[i].second] = neighDist[j].second;
+                }
+            }
+            if(updated)
+            pqu.push({dist[neighDist[i].second], neighDist[i].second});
+        }
+        neighDist.clear();
+    }
+
+    // Now, we need to propogate the updation in neighbours of those nodes
+    // whose dist[] values got updated.
+    // So, running an algorithm similar to PRUNED MULTISOURCE DIJKSTRA
+
+    while(!pqu.empty())
+    {
+        curr = pqu.top().second;
+        currdis = pqu.top().first;
+        pqu.pop();
+
+        if(currdis > dist[curr])
+        continue;
+
+        for(int currEdgeIndex = nodes[curr].head; currEdgeIndex != -1; currEdgeIndex = edges[currEdgeIndex].nxt)
+        {
+            neigh = edges[currEdgeIndex].to;
+            if(dist[neigh] > dist[curr] + 1)
+            {
+                dist[neigh] = dist[curr] + 1;
+                parent[neigh] = curr;
+                pqu.push({dist[neigh], neigh});
+            }
+        }
+    }
+
+    outFile << endl <<  "---------------------------------- ITERATION: " << iter << " ----------------------------------" << endl;
+    
+    for(int i = 0; i < N; i++)
+    printShortestPath(i, outFile);
 }
