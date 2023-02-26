@@ -10,6 +10,7 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
+#include <cstring>
 
 using namespace std;
 
@@ -38,7 +39,7 @@ struct nodeData
 };
 
 extern void solveProducer();
-extern void solveConsumer(int);
+extern void solveConsumer(int, const bool&);
 
 void addEdge(const int &, const int &);
 void populateGraph();
