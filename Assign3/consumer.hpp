@@ -2,6 +2,7 @@
 #define __CONSUMER_HPP
 
 #include <queue>
+#include <chrono>
 #include "main.hpp"
 
 extern struct nodeData *nodes;
@@ -14,8 +15,8 @@ extern int *currNodes; // to store count of current nodes
 extern int *currEdges; // to store count of current edges
 
 void printShortestPath(const int &, ofstream&, const vector<int>&, const vector<int>&);
-void multiSourceDijkstra(const vector<int>&, const int &, ofstream&);
-void solveConsumer(int);
-void optimizedSP(const vector<int>&, const vector<int>&, const int&, const int &, ofstream &);
+void multiSourceDijkstra(const int &, const vector<int>&, const int &, ofstream&, const bool&);
+void solveConsumer(int, const bool&);
+int optimizedSP(const int&, const vector<int>&, const vector<int>&, const int&, const int &, ofstream &);
 
 #endif
