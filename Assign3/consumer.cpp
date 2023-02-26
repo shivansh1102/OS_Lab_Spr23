@@ -18,8 +18,10 @@ void printShortestPath(const int &node, ofstream& outFile)
     outFile << "Distance: " << dist[node] << endl;
 }
 
-void multiSourceDijkstra(const vector<int>& sources, const int &iter, ofstream& outFile)
+void multiSourceDijkstra(const int &idx, const vector<int>& sources, const int &iter, ofstream& outFile, const bool& flagOptimize)
 {
+    auto startTime = chrono::high_resolution_clock().now();
+
     int N = (*currNodes);
     dist.assign(N, INF);
     parent.assign(N, -1);
@@ -54,13 +56,20 @@ void multiSourceDijkstra(const vector<int>& sources, const int &iter, ofstream& 
         }
     }
     
+    auto endTime = chrono::high_resolution_clock().now();
+    auto timeTaken = chrono::duration_cast<chrono::microseconds>(endTime-startTime);
+    cout << "Process#" << idx << " Iteration#" << iter << ": " << timeTaken.count() << endl;
+
     outFile << endl <<  "---------------------------------- ITERATION: " << iter << " ----------------------------------" << endl;
     
     for(int i = 0; i < N; i++)
     printShortestPath(i, outFile);
 
-    dist.clear();
-    parent.clear();
+    if(!flagOptimize)
+    {
+        dist.clear();
+        parent.clear();
+    }
 }
 
 void solveConsumer(int idx, const bool &flagOptimize)
@@ -97,7 +106,7 @@ void solveConsumer(int idx, const bool &flagOptimize)
         ASSUMPTION: 1/10 of New nodes added by producer each time will be added as sources for each consumer
     */
     int iter = 1, prevTotalNodes, newNodes;
-    vector<int>newSources;
+    vector<int>newSources; int sumTime = 0;
     while(1)
     {
         if(iter > 1)    // Adding new nodes to sources  
@@ -122,25 +131,33 @@ void solveConsumer(int idx, const bool &flagOptimize)
                 }
             }
         }
-
         if(flagOptimize && iter > 1)
-        optimizedSP(sources, newSources, newNodes, iter, outFile);
+        sumTime += optimizedSP(idx, sources, newSources, newNodes, iter, outFile);
         else
-        multiSourceDijkstra(sources, iter, outFile);
+        multiSourceDijkstra(idx, sources, iter, outFile, flagOptimize);
         
+        if(flagOptimize && iter > 1 && (iter-1)%10 == 0)
+        {
+            cout << "Avg time by Process#" << idx << " in first " << iter-1 << " iterations = " << sumTime/(iter-1) << endl;
+        }
+
         iter++;
         prevTotalNodes = *currNodes;
         newSources.clear();
-        sleep(30);
+        sleep(3);
     }
 
     sources.clear();
     outFile.close();
 }
 
-void optimizedSP(const vector<int>& sources, const vector<int>& newSources, const int& newNodes, const int &iter, ofstream &outFile)
+// returns time taken to execute the code
+int optimizedSP(const int& idx, const vector<int>& sources, const vector<int>& newSources, const int& newNodes, const int &iter, ofstream &outFile)
 {
+    auto startTime = chrono::high_resolution_clock().now();
+
     int N = (*currNodes);
+
     // First adding dist[] values of all new nodes as INF
     for(int i = 0; i < newNodes; i++)
     {
@@ -148,18 +165,17 @@ void optimizedSP(const vector<int>& sources, const vector<int>& newSources, cons
         parent.push_back(-1);
     }
 
+    queue<int>qu;
     // Now, making dist[] values of new source nodes as 0
     for(auto newSource : newSources)
     {
         dist[newSource] = 0;
         parent[newSource] = newSource;
+        qu.push(newSource);
     }
-
     // Now, running a PRUNED MULTISOURCE BFS from new source nodes to propogate their effect
-    queue<int>qu; int curr, neigh, currdis;
-    for(auto newSource : newSources)
-    qu.push(newSource);
-
+    int curr, neigh, currdis;
+    
     while(!qu.empty())
     {
         curr = qu.front();
@@ -250,8 +266,14 @@ void optimizedSP(const vector<int>& sources, const vector<int>& newSources, cons
         }
     }
 
+    auto endTime = chrono::high_resolution_clock().now();
+    auto timeTaken = chrono::duration_cast<chrono::microseconds>(endTime-startTime);
+    cout << "Process#" << idx << " Iteration#" << iter << ": " << timeTaken.count() << endl;
+
     outFile << endl <<  "---------------------------------- ITERATION: " << iter << " ----------------------------------" << endl;
     
     for(int i = 0; i < N; i++)
     printShortestPath(i, outFile);
+
+    return (int)timeTaken.count();
 }
