@@ -13,6 +13,7 @@ void allocateNewNodes(const int &newNodes)
 
 void allocateNewEdges(const int &newEdges)
 {
+    // Allocating memory for edges[] using placement new operator
     edgeData* temp = edges+(*currEdges);
     for(int i = 0; i < 2*newEdges; i++)     // multiplied by 2 because each edge will be stored as 2 directed edge
     {
