@@ -16,5 +16,6 @@ extern int *currEdges; // to store count of current edges
 void printShortestPath(const int &, ofstream&, const vector<int>&, const vector<int>&);
 void multiSourceDijkstra(const vector<int>&, const int &, ofstream&);
 void solveConsumer(int);
+void optimizedSP(const vector<int>&, const vector<int>&, const int&, const int &, ofstream &);
 
 #endif
