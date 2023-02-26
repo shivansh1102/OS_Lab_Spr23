@@ -13,8 +13,8 @@ extern char* bufEdge;  // pointer to shared memory storing edges
 extern int *currNodes; // to store count of current nodes
 extern int *currEdges; // to store count of current edges
 
-void printShortestPath(const int &node, ofstream& outFile, const vector<int>&dist, const vector<int>& parent);
-void multiSourceDijkstra(const vector<int>& sources, const int &iter, ofstream& outFile);
-void solveConsumer(int idx);
+void printShortestPath(const int &, ofstream&, const vector<int>&, const vector<int>&);
+void multiSourceDijkstra(const vector<int>&, const int &, ofstream&);
+void solveConsumer(int);
 
 #endif
