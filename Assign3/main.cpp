@@ -138,6 +138,9 @@ int main()
     if(producerPID == 0)
     {
         solveProducer();
+        shmdt(bufNode);
+        shmdt(bufEdge);
+        shmdt(currNodes);
         exit(0);
     }
     vector<pid_t>consumerPIDs(10);
@@ -147,6 +150,9 @@ int main()
         if(consumerPIDs[i] == 0)
         {
             solveConsumer(i);
+            shmdt(bufNode);
+            shmdt(bufEdge);
+            shmdt(currNodes);
             exit(0);
         }
     }
