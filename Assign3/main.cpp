@@ -1,5 +1,4 @@
 #include "main.hpp"
-#include "producer.hpp"
 
 nodeData *nodes;    // to store data of each node
 edgeData* edges;    // to store data of each edge
@@ -124,6 +123,11 @@ int main()
     }
 
     currNodes = (int *)shmat(shmid3, NULL, 0);
+    if(currNodes == (void*) -1)
+    {
+        cerr << "Error in shmat" << endl;
+        exit(1);
+    }
     currEdges = currNodes+1;
 
     populateGraph();
@@ -153,8 +157,10 @@ int main()
     
     shmdt(bufNode);
     shmdt(bufEdge);
+    shmdt(currNodes);
 
     shmctl(shmid1, IPC_RMID, NULL);
     shmctl(shmid2, IPC_RMID, NULL);
+    shmctl(shmid3, IPC_RMID, NULL);
     return 0;
 }
