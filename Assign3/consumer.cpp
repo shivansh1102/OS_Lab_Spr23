@@ -29,7 +29,7 @@ void multiSourceDijkstra(const vector<int>& sources, const int &iter, ofstream& 
         parent[source] = source;
     }
 
-    int curr, currdis, neigh; int maxcnt = 0, sum = 0;
+    int curr, currdis, neigh; 
     while(!pqu.empty())
     {
         curr = pqu.top().second;
@@ -38,10 +38,9 @@ void multiSourceDijkstra(const vector<int>& sources, const int &iter, ofstream& 
 
         if(dist[curr] < currdis)
         continue;
-        int cnt = 0;
+
         for(int currEdgeIndex = nodes[curr].head; currEdgeIndex != -1; currEdgeIndex = edges[currEdgeIndex].nxt)
         {
-            cnt++;
             neigh = edges[currEdgeIndex].to;
             if(dist[neigh] > dist[curr] + 1)
             {
@@ -50,12 +49,8 @@ void multiSourceDijkstra(const vector<int>& sources, const int &iter, ofstream& 
                 pqu.push({dist[neigh], neigh});
             }
         }
-        cout << cnt << endl;
-        sum += cnt;
-        maxcnt = max(maxcnt, cnt);
     }
-    cout << "maxcnt : " << maxcnt << endl;
-    cout << "avg: " << sum/4038 << endl;
+    
     outFile << endl <<  "---------------------------------- ITERATION: " << iter << " ----------------------------------" << endl;
     
     for(int i = 0; i < N; i++)
@@ -69,9 +64,19 @@ void solveConsumer(int idx)
 {
     // Inserting all source nodes corresponding to current consumer in a vector
     int cntSources = (*currNodes)/10;
-    vector<int>sources(cntSources);
-    for(int i = idx*cntSources; i < (idx+1)*cntSources; i++)
-    sources[i-idx*cntSources] = i;
+    vector<int>sources;
+    sources.reserve(cntSources);
+    
+    if(idx < 9)
+    {
+        for(int i = idx*cntSources; i < (idx+1)*cntSources; i++)
+        sources.push_back(i);
+    }
+    else    // if currNodes is not divisible by 10, then adding all remaining at the end to last consumer
+    {
+        for(int i = idx*cntSources; i < (*currNodes); i++)
+        sources.push_back(i);
+    }
 
     string outFileName = "output";
     outFileName += ((char)('0' + idx));
@@ -94,9 +99,18 @@ void solveConsumer(int idx)
         if(iter > 1)    // Adding new nodes to sources  
         {
             newNodes = (*currNodes) - prevTotalNodes;
-            for(int i = idx*newNodes/10; i < (idx+1)*newNodes/10; i++)
-            sources.push_back(prevTotalNodes + i);
+            if(idx < 9)
+            {
+                for(int i = idx*newNodes/10; i < (idx+1)*newNodes/10; i++)
+                sources.push_back(prevTotalNodes + i);
+            }
+            else        // if newNodes is not divisible by 10, then adding all remaining at the end to last consumer
+            {
+                for(int i = idx*newNodes/10; i < newNodes; i++)
+                sources.push_back(prevTotalNodes + i);
+            }
         }
+
         multiSourceDijkstra(sources, iter, outFile);
         
         iter++;
