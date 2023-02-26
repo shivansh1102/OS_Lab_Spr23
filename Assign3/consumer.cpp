@@ -194,8 +194,7 @@ int optimizedSP(const int& idx, const vector<int>& sources, const vector<int>& n
 
     bool updated;
     priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>>pqu;
-    vector<pair<int, int>> neighDist; // stores (dist[], node) for each neighbour
-
+    
     // Now, updating the values of remaining new nodes added in this iteration
     // As dist[] values for all nodes other than newly added nodes are final,
     // dist[] values for newly added non-source nodes can be found by 1-hop distance, ie, just iterating over its neighbours
@@ -211,34 +210,19 @@ int optimizedSP(const int& idx, const vector<int>& sources, const vector<int>& n
                 dist[i] = 1 + dist[neigh];
                 parent[i] = neigh;
             }
-            neighDist.push_back({dist[neigh], neigh});
         }
 
         // Now, consider this node had neighbours a, b, c, d
         // We should consider change in them also due to addition of this node
-        // We can write dist[a] = min({dist[a], 2 + dist[b], 2 + dist[c], 2 + dist[d]})
-        // and similarly for b, c & d.
-        // Now, we want the order in which we can process these nodes.
-        // It is obvious that dist[] value for that node won't change due to these equations
-        // who was having min dist[] value earlier.
-        // So, propagating the effect in increasing order of dist[] values.
-        sort(neighDist.begin(), neighDist.end());
-        for(int i = 1; i < neighDist.size(); i++)
+        for(int currEdgeIndex = nodes[i].head; currEdgeIndex != -1; currEdgeIndex = edges[currEdgeIndex].nxt)
         {
-            updated = false;
-            for(int j = i-1; j >= 0; j--)
+            neigh = edges[currEdgeIndex].to;
+            if(dist[neigh] > 1 + dist[i])
             {
-                if(dist[neighDist[i].second] > 2 + dist[neighDist[j].second])
-                {
-                    updated = true;
-                    dist[neighDist[i].second] = 2 + dist[neighDist[j].second];
-                    parent[neighDist[i].second] = neighDist[j].second;
-                }
+                dist[neigh] = 1 + dist[i];
+                parent[neigh] = i;
             }
-            if(updated)
-            pqu.push({dist[neighDist[i].second], neighDist[i].second});
         }
-        neighDist.clear();
     }
 
     // Now, we need to propogate the updation in neighbours of those nodes
