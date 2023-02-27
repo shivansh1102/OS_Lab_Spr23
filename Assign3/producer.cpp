@@ -52,6 +52,7 @@ void solveProducer()
                 otherNode = lower_bound(prefixDegreeSum.begin(), prefixDegreeSum.end(), temp) - prefixDegreeSum.begin();
                 addEdge((*currNodes)+i, otherNode); 
 
+                // cout << (*currNodes)+i << " - " << otherNode << endl;
                 // Now, as degree of otherNode has increased, updating prefixDegreeSum[] accordingly
                 for(int k = otherNode; k < prefixDegreeSum.size(); k++)
                 prefixDegreeSum[k]++;
