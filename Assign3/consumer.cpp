@@ -144,7 +144,7 @@ void solveConsumer(int idx, const bool &flagOptimize)
         iter++;
         prevTotalNodes = *currNodes;
         newSources.clear();
-        sleep(3);
+        sleep(30);
     }
 
     sources.clear();
