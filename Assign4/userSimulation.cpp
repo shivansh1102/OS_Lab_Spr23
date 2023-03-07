@@ -40,10 +40,15 @@ void* userSimulator(void * param)
             {
                 actType = rand()%3;
                 ++actionID[actType];
-                Action obj(node, actionID[actType], actType);
+                Action obj(node, actionID[actType], actionID[0] + actionID[1] + actionID[2], actType);
                 nodes[node].wallQueue.push(obj);
-                updates.push(obj);
+                outFile << "Generated Action- ";
                 outFile << obj << endl;
+
+                pthread_mutex_lock(&mutexUpdateQueue);
+                updates.push(obj);
+                pthread_cond_signal(&condUpdateQueue);
+                pthread_mutex_unlock(&mutexUpdateQueue);
             }
         }
 
@@ -51,5 +56,5 @@ void* userSimulator(void * param)
     }
 
     outFile.close();
-    pthread_exit(0);
+    pthread_exit(nullptr);
 }
