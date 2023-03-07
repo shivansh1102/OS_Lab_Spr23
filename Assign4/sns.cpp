@@ -1,6 +1,8 @@
 #include "sns.hpp" 
-extern const int MAXNODES = 37700, MAXEDGES = 289003;
-extern Node* nodes = new Node[MAXNODES];
+
+const int MAXNODES = 37700, MAXEDGES = 289003;
+Node* nodes = new Node[MAXNODES];
+queue<Action> updates;
 
 Node::Node() : degree(0), typeFeed(rand()%2) {}
 
@@ -20,19 +22,22 @@ void Node::addNeighbour(int node)
     degree++;
 }
 
-void Node::updateMutualFriendsNeigh()
+void Node::updateMutualFriendsNeigh(int x)
 {
     // Adding contribution of each node, ie
     // Consider ith node, for all pairs of its neighbours, (x,y)
     // We will add 1 to indicate both x & y have a mutual friend which is "i"
+    int cnt = 0;
     for(int i = 0; i < neigh.size(); i++)
     {
         for(int j = i+1; j < neigh.size(); j++)
         {
+            ++cnt;
             nodes[neigh[i]].cntMutualFriends[neigh[j]]++;
             nodes[neigh[j]].cntMutualFriends[neigh[i]]++;
         }
     }
+    cout << x << ": " << cnt << endl;
 }
 
 Action::Action(int userID = 0, int actionID = 0, int actionType = 0) : user_id(userID), action_id(actionID), action_type(actionType)
@@ -43,6 +48,12 @@ Action::Action(int userID = 0, int actionID = 0, int actionType = 0) : user_id(u
 Action::~Action()
 {
     cout << "Deleting action - user_id:" << user_id << " action_id:" << action_id << " action_type:" << action_type << " timestamp:" << timestamp << endl;
+}
+
+ofstream& operator << (ofstream& outFile, const Action& obj)
+{
+    outFile << "Action generated- user_id:" << obj.user_id << " action_id:" << obj.action_id << " action_type:" << obj.action_type << " timestamp:" << obj.timestamp;
+    return outFile;
 }
 
 int main()
@@ -83,7 +94,7 @@ int main()
     
     // // Now, computing mutual friends for all nodes
     // for(int i = 0; i < MAXNODES; i++)
-    // nodes[i].updateMutualFriendsNeigh();
+    // nodes[i].updateMutualFriendsNeigh(i);
 
     // auto endTime = chrono::high_resolution_clock().now();
     // auto timeTaken = chrono::duration_cast<chrono::microseconds>(endTime-startTime);
@@ -99,24 +110,24 @@ int main()
     pthread_attr_t usattr, rpattr[10], pdattr[25];
     // Initialising thread attributes with default values
     pthread_attr_init(&usattr);
-    for(int i = 0; i < 10; i++)
-    pthread_attr_init(&rpattr[i]);
-    for(int i = 0; i < 25; i++)
-    pthread_attr_init(&pdattr[i]);
+    // for(int i = 0; i < 10; i++)
+    // pthread_attr_init(&rpattr[i]);
+    // for(int i = 0; i < 25; i++)
+    // pthread_attr_init(&pdattr[i]);
 
     // Creating threads
     pthread_create(&userSimTID, &usattr, userSimulator, nullptr);
-    for(int i = 0; i < 10; i++)
-    pthread_create(&readPostTID[i], &rpattr[i], readPosts, nullptr);
-    for(int i = 0; i < 25; i++)
-    pthread_create(&pushUpdTID[i], &pdattr[i], pushUpdates, nullptr);
+    // for(int i = 0; i < 10; i++)
+    // pthread_create(&readPostTID[i], &rpattr[i], readPosts, nullptr);
+    // for(int i = 0; i < 25; i++)
+    // pthread_create(&pushUpdTID[i], &pdattr[i], pushUpdates, nullptr);
 
-    // Waiting for threads    
+    // // Waiting for threads    
     pthread_join(userSimTID, nullptr);
-    for(int i = 0; i < 10; i++)
-    pthread_join(readPostTID[i], nullptr);
-    for(int i = 0; i < 25; i++)
-    pthread_join(pushUpdTID[i], nullptr);
+    // for(int i = 0; i < 10; i++)
+    // pthread_join(readPostTID[i], nullptr);
+    // for(int i = 0; i < 25; i++)
+    // pthread_join(pushUpdTID[i], nullptr);
 
     delete[] nodes;
     return 0;
