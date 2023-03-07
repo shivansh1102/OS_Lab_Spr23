@@ -35,8 +35,12 @@ class Node
     Node();
     ~Node();
     void addNeighbour(int);
-    void updateMutualFriendsNeigh();
+    void updateMutualFriendsNeigh(int);
 }; 
+
+extern const int MAXNODES, MAXEDGES;
+extern Node* nodes;
+extern queue<Action> updates;
 
 extern void* userSimulator(void *);
 extern void* pushUpdates(void *);
