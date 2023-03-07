@@ -16,11 +16,13 @@ class Action
 {
     public :
     int user_id;
-    int action_id;
+    int action_id;                      // Action ID specific to this type of action
+    int global_action_id;               // Action ID equalivalent to all types of actions
     int action_type;                    // 0 -> post, 1 -> comment, 2 -> like
     time_t timestamp;   
-    Action(int userID, int actionID, int actionType);
+    Action(int, int, int, int);
     ~Action();
+    bool operator < (const Action&) const;    // overloading < as it will be used by priority_queue
 };  
 
 class Node
@@ -28,7 +30,7 @@ class Node
     public :
     vector<int>neigh;
     int degree;
-    queue<Action> feedQueue;
+    priority_queue<pair<int, Action>> feedQueue;
     queue<Action> wallQueue;
     bool typeFeed;                      // 0 - priority based, 1 - chronological
     map<int, int> cntMutualFriends;     // stores count of mutual friend of a node with current node
@@ -41,6 +43,9 @@ class Node
 extern const int MAXNODES, MAXEDGES;
 extern Node* nodes;
 extern queue<Action> updates;
+
+extern pthread_mutex_t mutexUpdateQueue, mutexFeedQueue;;
+extern pthread_cond_t condUpdateQueue, condFeedQueue;
 
 extern void* userSimulator(void *);
 extern void* pushUpdates(void *);
