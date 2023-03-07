@@ -38,9 +38,6 @@ class Node
     void updateMutualFriendsNeigh();
 }; 
 
-const int MAXNODES = 37700, MAXEDGES = 289003;
-Node* nodes = new Node[MAXNODES];
-
 extern void* userSimulator(void *);
 extern void* pushUpdates(void *);
 extern void* readPosts(void *);
