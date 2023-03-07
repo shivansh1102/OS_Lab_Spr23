@@ -1,4 +1,6 @@
 #include "sns.hpp" 
+extern const int MAXNODES = 37700, MAXEDGES = 289003;
+extern Node* nodes = new Node[MAXNODES];
 
 Node::Node() : degree(0), typeFeed(rand()%2) {}
 
