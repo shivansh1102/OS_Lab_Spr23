@@ -39,14 +39,18 @@ void* readPosts(void *)
 
         string write_file = "sns.log";
 
-        ofstream outFile(write_file, ios::app);
-        if(!outFile.is_open())
+        FILE *fptr = fopen(write_file.c_str(), "a");
+        if (fptr == NULL)
         {
             cerr << "Error in opening sns.log file" << endl;
             exit(1);
         }
-        outFile << action.user_id << " " << action.action_id << " " << action.action_type << " " << action.timestamp << endl;
-        outFile.close();
+
+        fprintf(fptr, "I read action number %d of type %d posted by user %d at time %ld\n", action.action_id, action.action_type, action.user_id, action.timestamp);
+
+        printf("I read action number %d of type %d posted by user %d at time %ld\n", action.action_id, action.action_type, action.user_id, action.timestamp);
+        
+        fclose(fptr);
     }
     pthread_mutex_unlock(&mutexfeedQueue[i]);
 }
