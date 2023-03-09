@@ -11,10 +11,10 @@ void readAllUpdates(const int &node, ofstream &outFile, const int &tidx)
 
         Action obj = nodes[node].feedQueue.top().second;
         nodes[node].feedQueue.pop();
-        pthread_mutex_lock(&filelock);
+        // pthread_mutex_lock(&filelock);
         outFile << "Read-update by thread #" << tidx << " Action-> ";
         outFile << obj << endl;
-        pthread_mutex_unlock(&filelock);
+        // pthread_mutex_unlock(&filelock);
     }
     pthread_mutex_unlock(&mutexFeedQueue[node]);
 }
@@ -23,12 +23,15 @@ void* readPosts(void* param)
 {
     int tidx = *static_cast<int*>(param);       // to store index of thread
 
-    ofstream outFile("sns.log");
+    // pthread_mutex_lock(&filelock);
+    ofstream outFile;
+    outFile.open("sns.log");
     if(!outFile.is_open())
     {
         cerr << "Error in opening sns.log" << endl;
         exit(1);
     }
+    // pthread_mutex_unlock(&filelock);
 
     int node;
     while(1)
@@ -43,4 +46,7 @@ void* readPosts(void* param)
 
         readAllUpdates(node, outFile, tidx);
     }
+
+    outFile.close();
+    pthread_exit(nullptr);
 }

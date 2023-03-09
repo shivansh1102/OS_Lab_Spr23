@@ -19,7 +19,7 @@ int findCntMutualFriend(Node* node1, Node* node2)
     return count;
 }
 
-void pushOneToFeed(const Action &obj, ofstream& outFile)
+void pushOneToFeed(const Action &obj, ofstream& outFile, const int& tidx)
 {
     int _priority, quIndex;
     for(int currNeigh : nodes[obj.user_id].neigh)
@@ -40,11 +40,11 @@ void pushOneToFeed(const Action &obj, ofstream& outFile)
         nodes[currNeigh].feedQueue.push({_priority, obj});
         pthread_mutex_unlock(&mutexFeedQueue[currNeigh]);
 
-        pthread_mutex_lock(&filelock);
-        outFile << "Pushed action- ";
+        // pthread_mutex_lock(&filelock);
+        outFile << "Thread PU#" << tidx << ": Pushed action- ";
         outFile << obj;
         outFile << " to feedQueue of Node #" << currNeigh << endl;
-        pthread_mutex_unlock(&filelock);
+        // pthread_mutex_unlock(&filelock);
 
         quIndex = currNeigh/(MAXNODES/10);
         pthread_mutex_lock(&mutexUpdNodeFeed[quIndex]);
@@ -58,13 +58,16 @@ void* pushUpdates(void* param)    // tidx -> thread index
 {
     int tidx = *static_cast<int*>(param);
 
-    ofstream outFile("sns.log");
+    // pthread_mutex_lock(&filelock);
+    ofstream outFile;
+    outFile.open("sns.log");
 
     if(!outFile.is_open())
     {
         cerr << "Error in opening sns.log" << endl;
         exit(1);
     }
+    // pthread_mutex_unlock(&filelock);
 
     while(1)
     {
@@ -75,13 +78,14 @@ void* pushUpdates(void* param)    // tidx -> thread index
         updates.pop();
         pthread_mutex_unlock(&mutexUpdateQueue);
 
-        pthread_mutex_lock(&filelock);
-        outFile << "Read action from update queue- ";
+        // pthread_mutex_lock(&filelock);
+        outFile << "Thread PU#" << tidx << ": Read action from updates queue- ";
         outFile << obj << endl;
-        pthread_mutex_unlock(&filelock);
-        
-        pushOneToFeed(obj, outFile);
+        // pthread_mutex_unlock(&filelock);
+
+        pushOneToFeed(obj, outFile, tidx);
     }
 
+    outFile.close();
     pthread_exit(nullptr);
 }
