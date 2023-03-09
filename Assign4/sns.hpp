@@ -10,19 +10,22 @@
 #include <fstream>
 #include <cstring>
 #include <chrono>
+#include <algorithm>
 using namespace std;
 
 class Action
 {
     public :
     int user_id;
-    int action_id;                      // Action ID specific to this type of action
-    int global_action_id;               // Action ID equalivalent to all types of actions
-    int action_type;                    // 0 -> post, 1 -> comment, 2 -> like
+    int action_id;                              // Action ID specific to this type of action
+    int global_action_id;                       // Action ID equalivalent to all types of actions
+    int action_type;                            // 0 -> post, 1 -> comment, 2 -> like
     time_t timestamp;   
     Action(int, int, int, int);
     ~Action();
-    bool operator < (const Action&) const;    // overloading < as it will be used by priority_queue
+    Action(const Action &);                     // Copy constructor
+    Action& operator= (const Action&);    // Copy assignment operator
+    bool operator< (const Action&) const;       // overloading < as it will be used by priority_queue
 };  
 
 class Node

@@ -40,13 +40,14 @@ void pushOneToFeed(const Action &obj, ofstream& outFile, const int& tidx)
         nodes[currNeigh].feedQueue.push({_priority, obj});
         pthread_mutex_unlock(&mutexFeedQueue[currNeigh]);
 
-        // pthread_mutex_lock(&filelock);
+        pthread_mutex_lock(&filelock);
         outFile << "Thread PU#" << tidx << ": Pushed action- ";
         outFile << obj;
         outFile << " to feedQueue of Node #" << currNeigh << endl;
-        // pthread_mutex_unlock(&filelock);
+        pthread_mutex_unlock(&filelock);
 
         quIndex = currNeigh/(MAXNODES/10);
+        assert(quIndex >= 0 && quIndex < 10);
         pthread_mutex_lock(&mutexUpdNodeFeed[quIndex]);
         updNodeFeed[quIndex].push(currNeigh);
         pthread_cond_signal(&condUpdNodeFeed[quIndex]);
@@ -58,16 +59,16 @@ void* pushUpdates(void* param)    // tidx -> thread index
 {
     int tidx = *static_cast<int*>(param);
 
-    // pthread_mutex_lock(&filelock);
+    pthread_mutex_lock(&filelock);
     ofstream outFile;
-    outFile.open("sns.log");
+    outFile.open("sns.log", ios::app);
 
     if(!outFile.is_open())
     {
         cerr << "Error in opening sns.log" << endl;
         exit(1);
     }
-    // pthread_mutex_unlock(&filelock);
+    pthread_mutex_unlock(&filelock);
 
     while(1)
     {
@@ -76,12 +77,13 @@ void* pushUpdates(void* param)    // tidx -> thread index
         pthread_cond_wait(&condUpdateQueue, &mutexUpdateQueue);
         Action obj = updates.front();
         updates.pop();
+        // cout << tidx << " " << updates.size() << endl;
         pthread_mutex_unlock(&mutexUpdateQueue);
 
-        // pthread_mutex_lock(&filelock);
+        pthread_mutex_lock(&filelock);
         outFile << "Thread PU#" << tidx << ": Read action from updates queue- ";
         outFile << obj << endl;
-        // pthread_mutex_unlock(&filelock);
+        pthread_mutex_unlock(&filelock);
 
         pushOneToFeed(obj, outFile, tidx);
     }

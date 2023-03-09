@@ -38,9 +38,21 @@ Action::Action(int userID = 0, int actionID = 0, int globalID = 0, int actionTyp
     time(&timestamp);
 }
 
-Action::~Action()
+Action::~Action() {}
+
+Action::Action(const Action& obj) : user_id(obj.user_id), action_id(obj.action_id), global_action_id(obj.global_action_id), action_type(obj.action_id), timestamp(obj.timestamp) {}
+
+Action& Action::operator= (const Action &obj)
 {
-    // cout << "Deleting action - user_id:" << user_id << " action_id:" << action_id << " action_type:" << action_type << " timestamp:" << timestamp << endl;
+    if(this != &obj)
+    {
+        user_id = obj.user_id;
+        action_id = obj.action_id;
+        action_type = obj.action_type;
+        global_action_id =obj.global_action_id;
+        timestamp = obj.timestamp;
+    }
+    return *this;
 }
 
 ofstream& operator << (ofstream& outFile, const Action& obj)
@@ -83,6 +95,9 @@ int main()
     }   
     inFile.close();
 
+    for(int i = 0; i < MAXNODES; i++)
+    sort(nodes[i].neigh.begin(), nodes[i].neigh.end());
+
     if(pthread_mutex_init(&mutexUpdateQueue, NULL) != 0)
     {
         cerr << "Error in initialising mutexUpdateQueue" << endl;
@@ -90,7 +105,7 @@ int main()
     }
     if(pthread_mutex_init(&filelock, NULL) != 0)
     {
-        cerr << "Error in initialising mutexUpdateQueue" << endl;
+        cerr << "Error in initialising file lock" << endl;
         exit(1);
     }
 
@@ -125,9 +140,16 @@ int main()
     // Creating threads
     pthread_create(&userSimTID, &usattr, userSimulator, nullptr);
     for(int i = 0; i < 25; i++)
-    pthread_create(&pushUpdTID[i], &pdattr[i], pushUpdates, static_cast<void*>(&i));
+    {
+        int *arg = new int(i);
+        pthread_create(&pushUpdTID[i], &pdattr[i], pushUpdates, static_cast<void*>(arg));
+    }
+
     for(int i = 0; i < 10; i++)
-    pthread_create(&readPostTID[i], &rpattr[i], readPosts, static_cast<void*>(&i));
+    {
+        int *arg = new int(i);
+        pthread_create(&readPostTID[i], &rpattr[i], readPosts, static_cast<void*>(arg));
+    }
 
     // Waiting for threads    
     pthread_join(userSimTID, nullptr);
@@ -141,6 +163,8 @@ int main()
     pthread_mutex_destroy(&mutexFeedQueue[i]);
     for(int i = 0; i < 10; ++i)
     pthread_mutex_destroy(&mutexUpdNodeFeed[i]);
+    pthread_mutex_destroy(&filelock);
     delete[] nodes;
+    
     return 0;
 }

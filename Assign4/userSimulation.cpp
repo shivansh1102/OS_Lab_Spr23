@@ -5,7 +5,7 @@ void* userSimulator(void* param)
     pthread_mutex_lock(&filelock);
 
     ofstream outFile;
-    outFile.open("sns.log");
+    outFile.open("sns.log", ios::app);
 
     if(!outFile.is_open())
     {
@@ -16,19 +16,23 @@ void* userSimulator(void* param)
     int actionID[3] = {0, 0, 0}; // postID, commentID, likeID
 
     set<int>distinctNodes;
-    int temp, cntActions, actType;
+    int temp, cntActions, actType, iter = 1;
     while(1)
     {
+        pthread_mutex_lock(&filelock);
+        outFile << endl << "----------------------------------ITERATION #" << iter << "--------------------------------" << endl << endl;
+        pthread_mutex_unlock(&filelock);
+
         distinctNodes.clear();
         while(distinctNodes.size() < 100)
         {
             temp = rand()%MAXNODES;
             distinctNodes.insert(temp);
-        }    
+        }  
 
+        pthread_mutex_lock(&mutexUpdateQueue);
         for(auto &node : distinctNodes)
         {
-            cout << node << endl;
             // counting no of bits in degree to find log2(degree)
             cntActions = 0;
             temp = nodes[node].degree;
@@ -43,29 +47,23 @@ void* userSimulator(void* param)
             outFile << endl << "For Node #" << node << " with degree = " << nodes[node].degree << ", " << cntActions << " actions generated." << endl;
             pthread_mutex_unlock(&filelock);
             
-            pthread_mutex_lock(&mutexUpdateQueue);
             while(cntActions--)
             {
-                cout << cntActions << endl;
                 actType = rand()%3;
                 ++actionID[actType];
                 Action obj(node, actionID[actType], actionID[0] + actionID[1] + actionID[2], actType);
                 nodes[node].wallQueue.push(obj);
-                cout << cntActions << endl;
                 pthread_mutex_lock(&filelock);
-                cout << cntActions << endl;
                 outFile << "Generated Action- ";
                 outFile << obj << endl;
-                cout << cntActions << endl;
                 pthread_mutex_unlock(&filelock);
-                cout << cntActions << endl;
-
+                
                 updates.push(obj);
             }
-            pthread_cond_signal(&condUpdateQueue);
-            pthread_mutex_unlock(&mutexUpdateQueue);
         }
-
+        pthread_cond_broadcast(&condUpdateQueue);
+        pthread_mutex_unlock(&mutexUpdateQueue);
+        ++iter;
         sleep(120);
     }
 
