@@ -6,7 +6,9 @@ queue<Action> updates;      // to store updates between user-simulator and push-
 queue<int> updNodeFeed[10];     // to store node no. whose feed queue got updated
 
 pthread_mutex_t mutexUpdateQueue, mutexFeedQueue[MAXNODES], mutexUpdNodeFeed[10];
-pthread_cond_t condUpdateQueue = PTHREAD_COND_INITIALIZER, condFeedQueue[MAXNODES], condUpdNodeFeed[10];
+pthread_cond_t condUpdateQueue = PTHREAD_COND_INITIALIZER, condUpdNodeFeed[10];
+
+pthread_mutex_t filelock = PTHREAD_MUTEX_INITIALIZER;
 
 Node::Node() : degree(0), typeFeed(rand()%2) {}
 
@@ -128,7 +130,6 @@ int main()
             cerr << "Error in initialising mutexFeedQueue #" << i << endl;
             exit(1);
         }
-        condFeedQueue[i] = PTHREAD_COND_INITIALIZER;
     }
 
     for(int i = 0; i < 10; i++)
@@ -145,22 +146,22 @@ int main()
     pthread_attr_t usattr, rpattr[10], pdattr[25];
     // Initialising thread attributes with default values
     pthread_attr_init(&usattr);
-    // for(int i = 0; i < 10; i++)
-    // pthread_attr_init(&rpattr[i]);
+    for(int i = 0; i < 10; i++)
+    pthread_attr_init(&rpattr[i]);
     for(int i = 0; i < 25; i++)
     pthread_attr_init(&pdattr[i]);
 
     // Creating threads
     pthread_create(&userSimTID, &usattr, userSimulator, nullptr);
-    // for(int i = 0; i < 10; i++)
-    // pthread_create(&readPostTID[i], &rpattr[i], readPosts, nullptr);
+    for(int i = 0; i < 10; i++)
+    pthread_create(&readPostTID[i], &rpattr[i], readPosts, static_cast<void*>(&i));
     for(int i = 0; i < 25; i++)
     pthread_create(&pushUpdTID[i], &pdattr[i], pushUpdates, static_cast<void*>(&i));
 
     // // Waiting for threads    
     pthread_join(userSimTID, nullptr);
-    // for(int i = 0; i < 10; i++)
-    // pthread_join(readPostTID[i], nullptr);
+    for(int i = 0; i < 10; i++)
+    pthread_join(readPostTID[i], nullptr);
     for(int i = 0; i < 25; i++)
     pthread_join(pushUpdTID[i], nullptr);
 
