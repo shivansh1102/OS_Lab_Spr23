@@ -28,24 +28,6 @@ void Node::addNeighbour(int node)
     degree++;
 }
 
-void Node::updateMutualFriendsNeigh(int x)
-{
-    // Adding contribution of each node, ie
-    // Consider ith node, for all pairs of its neighbours, (x,y)
-    // We will add 1 to indicate both x & y have a mutual friend which is "i"
-    int cnt = 0;
-    for(int i = 0; i < neigh.size(); i++)
-    {
-        for(int j = i+1; j < neigh.size(); j++)
-        {
-            ++cnt;
-            nodes[neigh[i]].cntMutualFriends[neigh[j]]++;
-            nodes[neigh[j]].cntMutualFriends[neigh[i]]++;
-        }
-    }
-    cout << x << ": " << cnt << endl;
-}
-
 bool Action::operator < (const Action& other) const     // Writing "const" is a must here as internally priority_queue implementation needs it for const objects.
 {
     return action_id < other.action_id;
