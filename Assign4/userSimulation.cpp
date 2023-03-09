@@ -34,7 +34,9 @@ void* userSimulator(void * param)
                 temp >>= 1;
             }
             
+            pthread_mutex_lock(&filelock);
             outFile << endl << "For Node #" << node << " with degree = " << nodes[node].degree << ", " << cntActions << " actions generated." << endl;
+            pthread_mutex_unlock(&filelock);
 
             pthread_mutex_lock(&mutexUpdateQueue);
             while(cntActions--)
@@ -43,9 +45,11 @@ void* userSimulator(void * param)
                 ++actionID[actType];
                 Action obj(node, actionID[actType], actionID[0] + actionID[1] + actionID[2], actType);
                 nodes[node].wallQueue.push(obj);
+                pthread_mutex_lock(&filelock);
                 outFile << "Generated Action- ";
                 outFile << obj << endl;
-
+                pthread_mutex_unlock(&filelock);
+                
                 updates.push(obj);
             }
             pthread_cond_signal(&condUpdateQueue);
