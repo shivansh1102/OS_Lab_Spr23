@@ -1,56 +1,46 @@
-#include "sns.hpp"
+#include "readPosts.hpp"
 
-extern pthread_mutex_t mutexfeedQueue[40000];
-extern pthread_mutex_t mutexupdateQueue;
-extern pthread_cond_t condfeedQueue;
-extern pthread_cond_t condupdateQueue;
-extern queue<Action> feedQueue[40000];
-extern queue<int> updateQueue;
-extern int fileCount;
-
-void* readPosts(void *)
+void readAllUpdates(const int &node, ofstream &outFile, const int &tidx)
 {
-    /*
-        if the updatequeue is locked, then wait for it to be unlocked
-        else if the updatequeue is empty, wait for the broadcast
-        else lock the updatequeue and read the update file until the updatequeue is empty and unlock the updatequeue
-        if the feedqueue is locked, then wait for it to be unlocked
-        else if the feedqueue is empty, wait for the broadcast
-        else lock the feedqueue and write the action file until the feedqueue is empty and unlock the feedqueue
-    */
-    pthread_mutex_lock(&mutexupdateQueue);
-    while (updateQueue.empty())
-    {
-        pthread_cond_wait(&condupdateQueue, &mutexupdateQueue);
-    }
-    int i = updateQueue.front();
-    updateQueue.pop();
-    pthread_mutex_unlock(&mutexupdateQueue);
-
-    pthread_mutex_lock(&mutexfeedQueue[i]);
     
+    pthread_mutex_lock(&mutexFeedQueue[node]);
     while(1)
     {
-        if (feedQueue[i].empty())
-            break;
+        if(nodes[node].feedQueue.empty())
+        return;
 
-        Action action = feedQueue[i].front();
-        feedQueue[i].pop();
-
-        string write_file = "sns.log";
-
-        FILE *fptr = fopen(write_file.c_str(), "a");
-        if (fptr == NULL)
-        {
-            cerr << "Error in opening sns.log file" << endl;
-            exit(1);
-        }
-
-        fprintf(fptr, "I read action number %d of type %d posted by user %d at time %ld\n", action.action_id, action.action_type, action.user_id, action.timestamp);
-
-        printf("I read action number %d of type %d posted by user %d at time %ld\n", action.action_id, action.action_type, action.user_id, action.timestamp);
-        
-        fclose(fptr);
+        Action obj = nodes[node].feedQueue.top().second;
+        nodes[node].feedQueue.pop();
+        pthread_mutex_lock(&filelock);
+        outFile << "Read-update by thread #" << tidx << " Action-> ";
+        outFile << obj << endl;
+        pthread_mutex_unlock(&filelock);
     }
-    pthread_mutex_unlock(&mutexfeedQueue[i]);
+    pthread_mutex_unlock(&mutexFeedQueue[node]);
+}
+
+void* readPosts(void* param)
+{
+    int tidx = *static_cast<int*>(param);       // to store index of thread
+
+    ofstream outFile("sns.log");
+    if(!outFile.is_open())
+    {
+        cerr << "Error in opening sns.log" << endl;
+        exit(1);
+    }
+
+    int node;
+    while(1)
+    {
+        pthread_mutex_lock(&mutexUpdNodeFeed[tidx]);
+        while(updNodeFeed[tidx].empty())
+        pthread_cond_wait(&condUpdNodeFeed[tidx], &mutexUpdNodeFeed[tidx]);
+
+        node = updNodeFeed[tidx].front();
+        updNodeFeed[tidx].pop();
+        pthread_mutex_unlock(&mutexUpdNodeFeed[tidx]);
+
+        readAllUpdates(node, outFile, tidx);
+    }
 }
