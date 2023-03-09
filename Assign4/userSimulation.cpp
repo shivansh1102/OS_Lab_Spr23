@@ -36,6 +36,7 @@ void* userSimulator(void * param)
             
             outFile << endl << "For Node #" << node << " with degree = " << nodes[node].degree << ", " << cntActions << " actions generated." << endl;
 
+            pthread_mutex_lock(&mutexUpdateQueue);
             while(cntActions--)
             {
                 actType = rand()%3;
@@ -45,11 +46,10 @@ void* userSimulator(void * param)
                 outFile << "Generated Action- ";
                 outFile << obj << endl;
 
-                pthread_mutex_lock(&mutexUpdateQueue);
                 updates.push(obj);
                 pthread_cond_signal(&condUpdateQueue);
-                pthread_mutex_unlock(&mutexUpdateQueue);
             }
+            pthread_mutex_unlock(&mutexUpdateQueue);
         }
 
         sleep(120);
