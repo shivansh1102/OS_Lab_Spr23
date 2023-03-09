@@ -45,7 +45,8 @@ extern Node* nodes;
 extern queue<Action> updates;
 extern queue<int> updNodeFeed[];
 extern pthread_mutex_t mutexUpdateQueue, mutexFeedQueue[], mutexUpdNodeFeed[];
-extern pthread_cond_t condUpdateQueue, condFeedQueue[], condUpdNodeFeed[];
+extern pthread_cond_t condUpdateQueue, condUpdNodeFeed[];
+extern pthread_mutex_t filelock;
 
 extern void* userSimulator(void *);
 extern void* pushUpdates(void *);
