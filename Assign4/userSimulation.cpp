@@ -47,8 +47,8 @@ void* userSimulator(void * param)
                 outFile << obj << endl;
 
                 updates.push(obj);
-                pthread_cond_signal(&condUpdateQueue);
             }
+            pthread_cond_signal(&condUpdateQueue);
             pthread_mutex_unlock(&mutexUpdateQueue);
         }
 
