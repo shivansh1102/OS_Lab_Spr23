@@ -43,9 +43,9 @@ class Node
 extern const int MAXNODES, MAXEDGES;
 extern Node* nodes;
 extern queue<Action> updates;
-
-extern pthread_mutex_t mutexUpdateQueue, mutexFeedQueue;;
-extern pthread_cond_t condUpdateQueue, condFeedQueue;
+extern queue<int> updNodeFeed[];
+extern pthread_mutex_t mutexUpdateQueue, mutexFeedQueue[], mutexUpdNodeFeed[];
+extern pthread_cond_t condUpdateQueue, condFeedQueue[], condUpdNodeFeed[];
 
 extern void* userSimulator(void *);
 extern void* pushUpdates(void *);
