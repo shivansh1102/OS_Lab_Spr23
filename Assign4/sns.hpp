@@ -37,7 +37,6 @@ class Node
     Node();
     ~Node();
     void addNeighbour(int);
-    void updateMutualFriendsNeigh(int);
 }; 
 
 extern const int MAXNODES, MAXEDGES;
