@@ -2,10 +2,11 @@
 
 const int MAXNODES = 37700, MAXEDGES = 289003;
 Node* nodes = new Node[MAXNODES];
-queue<Action> updates;
+queue<Action> updates;      // to store updates between user-simulator and push-update
+queue<int> updNodeFeed[10];     // to store node no. whose feed queue got updated
 
-pthread_mutex_t mutexUpdateQueue, mutexFeedQueue;
-pthread_cond_t condUpdateQueue = PTHREAD_COND_INITIALIZER, condFeedQueue = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t mutexUpdateQueue, mutexFeedQueue[MAXNODES], mutexUpdNodeFeed[10];
+pthread_cond_t condUpdateQueue = PTHREAD_COND_INITIALIZER, condFeedQueue[MAXNODES], condUpdNodeFeed[10];
 
 Node::Node() : degree(0), typeFeed(rand()%2) {}
 
@@ -120,10 +121,24 @@ int main()
         exit(1);
     }
 
-    if(pthread_mutex_init(&mutexFeedQueue, NULL) != 0)
+    for(int i = 0; i < MAXNODES; i++)
     {
-        cerr << "Error in initialising mutexFeedQueue" << endl;
-        exit(1);
+        if(pthread_mutex_init(&mutexFeedQueue[i], NULL) != 0)
+        {
+            cerr << "Error in initialising mutexFeedQueue #" << i << endl;
+            exit(1);
+        }
+        condFeedQueue[i] = PTHREAD_COND_INITIALIZER;
+    }
+
+    for(int i = 0; i < 10; i++)
+    {
+        if(pthread_mutex_init(&mutexUpdNodeFeed[i], NULL) != 0)
+        {
+            cerr << "Error in initialising mutexFeedQueue #" << i << endl;
+            exit(1);
+        }
+        condUpdNodeFeed[i] = PTHREAD_COND_INITIALIZER;
     }
 
     pthread_t userSimTID, readPostTID[10], pushUpdTID[25];
