@@ -13,8 +13,8 @@ void* userSimulator(void* param)
         exit(1);
     }
     pthread_mutex_unlock(&filelock);
-    int actionID[3] = {0, 0, 0}; // postID, commentID, likeID
-
+    
+    int actionID[3] = {0, 0, 0}; // postID, commentID, likeID global to all nodes
     set<int>distinctNodes;
     int temp, cntActions, actType, iter = 1;
     vector<Action> actions;     // to store all actions generated in one iteration
@@ -54,7 +54,6 @@ void* userSimulator(void* param)
             pthread_mutex_unlock(&filelock);
             
             pthread_mutex_lock(&stdoutlock);
-            // printf("\nFor Node #%d with degree = %d, %d actions generated.\n", node, nodes[node].degree, cntActions);
             cout << endl << "For Node #" << node << " with degree = " << nodes[node].degree << ", " << cntActions << " actions generated." << endl;
             pthread_mutex_unlock(&stdoutlock);
 
@@ -62,7 +61,8 @@ void* userSimulator(void* param)
             {
                 actType = rand()%3;
                 ++actionID[actType];
-                Action obj(node, actionID[actType], actionID[0] + actionID[1] + actionID[2], actType);
+                ++nodes[node].actionCount[actType];
+                Action obj(node, nodes[node].actionCount[actType], actionID[0] + actionID[1] + actionID[2], actType);
                 nodes[node].wallQueue.push(obj);
                 actions.push_back(obj);
 
@@ -84,7 +84,7 @@ void* userSimulator(void* param)
         {
             updates.push(action);
         }
-        pthread_cond_broadcast(&condUpdateQueue);
+        pthread_cond_signal(&condUpdateQueue);
         pthread_mutex_unlock(&mutexUpdateQueue);
         ++iter;
         sleep(120);

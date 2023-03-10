@@ -12,7 +12,10 @@ pthread_mutex_t filelock, stdoutlock;
 
 string actionTypes[] = {"Post", "Comment", "Like"};
 
-Node::Node() : degree(0), typeFeed(rand()%2) {}
+Node::Node() : degree(0), typeFeed(rand()%2) 
+{
+    actionCount.assign(3, 0);
+}
 
 Node::~Node()
 {
@@ -22,6 +25,7 @@ Node::~Node()
     feedQueue.pop();
     while(!wallQueue.empty())
     wallQueue.pop();
+    actionCount.clear();
 }
 
 void Node::addNeighbour(int node)
