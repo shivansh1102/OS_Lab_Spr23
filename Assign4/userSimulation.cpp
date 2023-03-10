@@ -54,6 +54,7 @@ void* userSimulator(void* param)
             pthread_mutex_unlock(&filelock);
             
             pthread_mutex_lock(&stdoutlock);
+            // printf("\nFor Node #%d with degree = %d, %d actions generated.\n", node, nodes[node].degree, cntActions);
             cout << '\n' << "For Node #" << node << " with degree = " << nodes[node].degree << ", " << cntActions << " actions generated." << '\n';
             pthread_mutex_unlock(&stdoutlock);
 

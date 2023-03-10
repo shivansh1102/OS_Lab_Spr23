@@ -10,6 +10,8 @@ pthread_cond_t condUpdateQueue = PTHREAD_COND_INITIALIZER, condUpdNodeFeed[10];
 
 pthread_mutex_t filelock, stdoutlock;
 
+string actionTypes[] = {"Post", "Comment", "Like"};
+
 Node::Node() : degree(0), typeFeed(rand()%2) {}
 
 Node::~Node()
@@ -40,7 +42,7 @@ Action::Action(int userID = 0, int actionID = 0, int globalID = 0, int actionTyp
 
 Action::~Action() {}
 
-Action::Action(const Action& obj) : user_id(obj.user_id), action_id(obj.action_id), global_action_id(obj.global_action_id), action_type(obj.action_id), timestamp(obj.timestamp) {}
+Action::Action(const Action& obj) : user_id(obj.user_id), action_id(obj.action_id), global_action_id(obj.global_action_id), action_type(obj.action_type), timestamp(obj.timestamp) {}
 
 Action& Action::operator= (const Action &obj)
 {
@@ -57,13 +59,14 @@ Action& Action::operator= (const Action &obj)
 
 ofstream& operator << (ofstream& outFile, const Action& obj)
 {
-    outFile << "user_id:" << obj.user_id << " action_id:" << obj.action_id << " action_type:" << obj.action_type << " timestamp:" << obj.timestamp;
+    outFile << "user_id:" << obj.user_id << " action_id:" << obj.action_id << " action_type:" << actionTypes[obj.action_type] << " timestamp:" << obj.timestamp;
     return outFile;
 }
 
 ostream& operator << (ostream& outFile, const Action& obj)
 {
-    cout << "user_id:" << obj.user_id << " action_id:" << obj.action_id << " action_type:" << obj.action_type << " timestamp:" << obj.timestamp;
+    assert(obj.action_type >= 0 && obj.action_type < 3);
+    cout << "user_id:" << obj.user_id << " action_id:" << obj.action_id << " action_type:" << actionTypes[obj.action_type] << " timestamp:" << obj.timestamp;
     return outFile;
 }
 
