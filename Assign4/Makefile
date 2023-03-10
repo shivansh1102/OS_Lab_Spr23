@@ -14,4 +14,4 @@ userSimulation.o: userSimulation.cpp userSimulation.hpp
 	g++ -c userSimulation.cpp
 
 clean:
-	rm -f *.o sns
+	rm -f *.o
