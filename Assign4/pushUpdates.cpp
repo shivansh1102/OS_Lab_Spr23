@@ -46,8 +46,13 @@ void pushOneToFeed(const Action &obj, ofstream& outFile, const int& tidx)
         outFile << " to feedQueue of Node #" << currNeigh << endl;
         pthread_mutex_unlock(&filelock);
 
+        pthread_mutex_lock(&stdoutlock);
+        cout << "Thread PU#" << tidx << ": Pushed action- ";
+        cout << obj;
+        cout << " to feedQueue of Node #" << currNeigh << endl;
+        pthread_mutex_unlock(&stdoutlock);
+
         quIndex = currNeigh/(MAXNODES/10);
-        assert(quIndex >= 0 && quIndex < 10);
         pthread_mutex_lock(&mutexUpdNodeFeed[quIndex]);
         updNodeFeed[quIndex].push(currNeigh);
         pthread_cond_signal(&condUpdNodeFeed[quIndex]);
@@ -77,13 +82,17 @@ void* pushUpdates(void* param)    // tidx -> thread index
         pthread_cond_wait(&condUpdateQueue, &mutexUpdateQueue);
         Action obj = updates.front();
         updates.pop();
-        // cout << tidx << " " << updates.size() << endl;
         pthread_mutex_unlock(&mutexUpdateQueue);
 
         pthread_mutex_lock(&filelock);
         outFile << "Thread PU#" << tidx << ": Read action from updates queue- ";
         outFile << obj << endl;
         pthread_mutex_unlock(&filelock);
+
+        pthread_mutex_lock(&stdoutlock);
+        cout << "Thread PU#" << tidx << ": Read action from updates queue- ";
+        cout << obj << endl;
+        pthread_mutex_unlock(&stdoutlock);
 
         pushOneToFeed(obj, outFile, tidx);
     }

@@ -7,5 +7,6 @@
 
 void* userSimulator(void *);
 extern ofstream& operator << (ofstream&, const Action&);
+extern ostream& operator << (ostream&, const Action&);
 
 #endif

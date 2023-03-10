@@ -23,6 +23,10 @@ void* userSimulator(void* param)
         outFile << endl << "----------------------------------ITERATION #" << iter << "--------------------------------" << endl << endl;
         pthread_mutex_unlock(&filelock);
 
+        pthread_mutex_lock(&stdoutlock);
+        cout << endl << "----------------------------------ITERATION #" << iter << "--------------------------------" << endl << endl;
+        pthread_mutex_unlock(&stdoutlock);
+
         distinctNodes.clear();
         while(distinctNodes.size() < 100)
         {
@@ -47,6 +51,10 @@ void* userSimulator(void* param)
             outFile << endl << "For Node #" << node << " with degree = " << nodes[node].degree << ", " << cntActions << " actions generated." << endl;
             pthread_mutex_unlock(&filelock);
             
+            pthread_mutex_lock(&stdoutlock);
+            cout << endl << "For Node #" << node << " with degree = " << nodes[node].degree << ", " << cntActions << " actions generated." << endl;
+            pthread_mutex_unlock(&stdoutlock);
+
             while(cntActions--)
             {
                 actType = rand()%3;
@@ -57,6 +65,11 @@ void* userSimulator(void* param)
                 outFile << "Generated Action- ";
                 outFile << obj << endl;
                 pthread_mutex_unlock(&filelock);
+
+                pthread_mutex_lock(&stdoutlock);
+                cout << "Generated Action- ";
+                cout << obj << endl;
+                pthread_mutex_unlock(&stdoutlock);
                 
                 updates.push(obj);
             }

@@ -4,5 +4,6 @@
 #include "sns.hpp"
 #include <cassert>
 extern ofstream& operator << (ofstream&, const Action&);
+extern ostream& operator << (ostream&, const Action&);
 
 #endif

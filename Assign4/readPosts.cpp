@@ -2,8 +2,8 @@
 
 void readAllUpdates(const int &node, ofstream &outFile, const int &tidx)
 {
-    int _priority;
     pthread_mutex_lock(&mutexFeedQueue[node]);
+    int _priority;
     while(1)
     {
         if(nodes[node].feedQueue.empty())
@@ -18,6 +18,14 @@ void readAllUpdates(const int &node, ofstream &outFile, const int &tidx)
         outFile << " with priority - " << _priority;
         outFile << endl;
         pthread_mutex_unlock(&filelock);
+
+        pthread_mutex_lock(&stdoutlock);
+        cout << "Read-update by thread RP#" << tidx << " for node #" << node << " Action-> ";
+        cout << obj;
+        if(_priority > 0) // if priority-based 
+        cout << " with priority - " << _priority;
+        cout << endl;
+        pthread_mutex_unlock(&stdoutlock);
     }
     pthread_mutex_unlock(&mutexFeedQueue[node]);
 }

@@ -8,7 +8,7 @@ queue<int> updNodeFeed[10];     // to store node no. whose feed queue got update
 pthread_mutex_t mutexUpdateQueue, mutexFeedQueue[MAXNODES], mutexUpdNodeFeed[10];
 pthread_cond_t condUpdateQueue = PTHREAD_COND_INITIALIZER, condUpdNodeFeed[10];
 
-pthread_mutex_t filelock;
+pthread_mutex_t filelock, stdoutlock;
 
 Node::Node() : degree(0), typeFeed(rand()%2) {}
 
@@ -30,7 +30,7 @@ void Node::addNeighbour(int node)
 
 bool Action::operator < (const Action& other) const     // Writing "const" is a must here as internally priority_queue implementation needs it for const objects.
 {
-    return action_id < other.action_id;
+    return global_action_id < other.global_action_id;
 }
 
 Action::Action(int userID = 0, int actionID = 0, int globalID = 0, int actionType = 0) : user_id(userID), action_id(actionID), global_action_id(globalID), action_type(actionType)
@@ -58,6 +58,12 @@ Action& Action::operator= (const Action &obj)
 ofstream& operator << (ofstream& outFile, const Action& obj)
 {
     outFile << "user_id:" << obj.user_id << " action_id:" << obj.action_id << " action_type:" << obj.action_type << " timestamp:" << obj.timestamp;
+    return outFile;
+}
+
+ostream& operator << (ostream& outFile, const Action& obj)
+{
+    cout << "user_id:" << obj.user_id << " action_id:" << obj.action_id << " action_type:" << obj.action_type << " timestamp:" << obj.timestamp;
     return outFile;
 }
 
@@ -106,6 +112,11 @@ int main()
     if(pthread_mutex_init(&filelock, NULL) != 0)
     {
         cerr << "Error in initialising file lock" << endl;
+        exit(1);
+    }
+    if(pthread_mutex_init(&stdoutlock, NULL) != 0)
+    {
+        cerr << "Error in initialising stdout lock" << endl;
         exit(1);
     }
 
@@ -158,12 +169,20 @@ int main()
     for(int i = 0; i < 25; i++)
     pthread_join(pushUpdTID[i], nullptr);
 
+    // Destroying all mutex locks
     pthread_mutex_destroy(&mutexUpdateQueue);
     for(int i = 0; i < MAXNODES; ++i)
     pthread_mutex_destroy(&mutexFeedQueue[i]);
     for(int i = 0; i < 10; ++i)
     pthread_mutex_destroy(&mutexUpdNodeFeed[i]);
     pthread_mutex_destroy(&filelock);
+    pthread_mutex_destroy(&stdoutlock);
+
+    // Destroying all conditional variables
+    pthread_cond_destroy(&condUpdateQueue);
+    for(int i = 0; i < 10; i++)
+    pthread_cond_destroy(&condUpdNodeFeed[i]);
+
     delete[] nodes;
     
     return 0;
