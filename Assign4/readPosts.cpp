@@ -2,8 +2,8 @@
 
 void readAllUpdates(const int &node, ofstream &outFile, const int &tidx)
 {
-    pthread_mutex_lock(&mutexFeedQueue[node]);
     int _priority;
+    pthread_mutex_lock(&mutexFeedQueue[node]);
     while(1)
     {
         if(nodes[node].feedQueue.empty())
