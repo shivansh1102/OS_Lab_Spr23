@@ -38,7 +38,6 @@ class Node
     queue<Action> wallQueue;
     bool typeFeed;                      // 0 - priority based, 1 - chronological
     map<int, int> cntMutualFriends;     // stores count of mutual friend of a node with current node
-    vector<int>actionCount;             // stores action count of each type
     Node();
     ~Node();
     void addNeighbour(int);
