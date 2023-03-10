@@ -21,11 +21,11 @@ void* userSimulator(void* param)
     while(1)
     {
         pthread_mutex_lock(&filelock);
-        outFile << '\n' << "----------------------------------ITERATION #" << iter << "--------------------------------" << '\n' << '\n';
+        outFile << endl << "----------------------------------ITERATION #" << iter << "--------------------------------" << endl << endl;
         pthread_mutex_unlock(&filelock);
 
         pthread_mutex_lock(&stdoutlock);
-        cout << '\n' << "----------------------------------ITERATION #" << iter << "--------------------------------" << '\n' << '\n';
+        cout << endl << "----------------------------------ITERATION #" << iter << "--------------------------------" << endl << endl;
         pthread_mutex_unlock(&stdoutlock);
 
         distinctNodes.clear();
@@ -50,12 +50,12 @@ void* userSimulator(void* param)
             cntActions = 10*(1 + cntActions);
 
             pthread_mutex_lock(&filelock);
-            outFile << '\n' << "For Node #" << node << " with degree = " << nodes[node].degree << ", " << cntActions << " actions generated." << '\n';
+            outFile << endl << "For Node #" << node << " with degree = " << nodes[node].degree << ", " << cntActions << " actions generated." << endl;
             pthread_mutex_unlock(&filelock);
             
             pthread_mutex_lock(&stdoutlock);
             // printf("\nFor Node #%d with degree = %d, %d actions generated.\n", node, nodes[node].degree, cntActions);
-            cout << '\n' << "For Node #" << node << " with degree = " << nodes[node].degree << ", " << cntActions << " actions generated." << '\n';
+            cout << endl << "For Node #" << node << " with degree = " << nodes[node].degree << ", " << cntActions << " actions generated." << endl;
             pthread_mutex_unlock(&stdoutlock);
 
             while(cntActions--)
@@ -68,12 +68,12 @@ void* userSimulator(void* param)
 
                 pthread_mutex_lock(&filelock);
                 outFile << "Generated Action- ";
-                outFile << obj << '\n';
+                outFile << obj << endl;
                 pthread_mutex_unlock(&filelock);
 
                 pthread_mutex_lock(&stdoutlock);
                 cout << "Generated Action- ";
-                cout << obj << '\n';
+                cout << obj << endl;
                 pthread_mutex_unlock(&stdoutlock);
                 
             }
@@ -87,7 +87,7 @@ void* userSimulator(void* param)
         pthread_cond_broadcast(&condUpdateQueue);
         pthread_mutex_unlock(&mutexUpdateQueue);
         ++iter;
-        sleep(40);
+        sleep(120);
     }
 
     outFile.close();

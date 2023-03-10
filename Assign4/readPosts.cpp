@@ -16,7 +16,7 @@ void readAllUpdates(const int &node, ofstream &outFile, const int &tidx)
         outFile << obj;
         if(_priority > 0) // if priority-based 
         outFile << " with priority - " << _priority;
-        outFile << '\n';
+        outFile << endl;
         pthread_mutex_unlock(&filelock);
 
         pthread_mutex_lock(&stdoutlock);
@@ -24,7 +24,7 @@ void readAllUpdates(const int &node, ofstream &outFile, const int &tidx)
         cout << obj;
         if(_priority > 0) // if priority-based 
         cout << " with priority - " << _priority;
-        cout << '\n';
+        cout << endl;
         pthread_mutex_unlock(&stdoutlock);
     }
     pthread_mutex_unlock(&mutexFeedQueue[node]);
@@ -38,7 +38,7 @@ void* readPosts(void* param)
     outFile.open("sns.log", ios::app);
     if(!outFile.is_open())
     {
-        cerr << "Error in opening sns.log" << '\n';
+        cerr << "Error in opening sns.log" << endl;
         exit(1);
     }
     pthread_mutex_unlock(&filelock);

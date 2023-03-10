@@ -36,21 +36,21 @@ void pushOneToFeed(const Action &obj, ofstream& outFile, const int& tidx)
             _priority = nodes[currNeigh].cntMutualFriends[obj.user_id];
         }
 
-        pthread_mutex_lock(&mutexFeedQueue[currNeigh]);
-        nodes[currNeigh].feedQueue.push({_priority, obj});
-        pthread_mutex_unlock(&mutexFeedQueue[currNeigh]);
-
         pthread_mutex_lock(&filelock);
         outFile << "Thread PU#" << tidx << ": Pushed action- ";
         outFile << obj;
-        outFile << " to feedQueue of Node #" << currNeigh << '\n';
+        outFile << " to feedQueue of Node #" << currNeigh << endl;
         pthread_mutex_unlock(&filelock);
 
         pthread_mutex_lock(&stdoutlock);
         cout << "Thread PU#" << tidx << ": Pushed action- ";
         cout << obj;
-        cout << " to feedQueue of Node #" << currNeigh << '\n';
+        cout << " to feedQueue of Node #" << currNeigh << endl;
         pthread_mutex_unlock(&stdoutlock);
+
+        pthread_mutex_lock(&mutexFeedQueue[currNeigh]);
+        nodes[currNeigh].feedQueue.push({_priority, obj});
+        pthread_mutex_unlock(&mutexFeedQueue[currNeigh]);
 
         quIndex = currNeigh/(MAXNODES/10);
         pthread_mutex_lock(&mutexUpdNodeFeed[quIndex]);
@@ -86,12 +86,12 @@ void* pushUpdates(void* param)    // tidx -> thread index
 
         pthread_mutex_lock(&filelock);
         outFile << "Thread PU#" << tidx << ": Read action from updates queue- ";
-        outFile << obj << '\n';
+        outFile << obj << endl;
         pthread_mutex_unlock(&filelock);
 
         pthread_mutex_lock(&stdoutlock);
         cout << "Thread PU#" << tidx << ": Read action from updates queue- ";
-        cout << obj << '\n';
+        cout << obj << endl;
         pthread_mutex_unlock(&stdoutlock);
 
         pushOneToFeed(obj, outFile, tidx);
