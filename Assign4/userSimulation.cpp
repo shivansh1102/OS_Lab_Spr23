@@ -84,7 +84,7 @@ void* userSimulator(void* param)
         {
             updates.push(action);
         }
-        pthread_cond_broadcast(&condUpdateQueue);
+        pthread_cond_signal(&condUpdateQueue);
         pthread_mutex_unlock(&mutexUpdateQueue);
         ++iter;
         sleep(120);
