@@ -1,0 +1,13 @@
+--------------Q1----------------
+
+bash problem1.sh <x> <y> <m>
+
+-------------Q2-----------------
+
+gcc problem2.c -o problem2
+./problem2
+
+---------- Q3----------
+
+gcc problem3.c -lpthread
+./a.out
