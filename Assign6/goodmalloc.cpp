@@ -37,9 +37,9 @@ void Stack::FuncEnd()
 }
 void Stack::push(const stackEntry &entry)
 {
-    sp -= 4;
+    sp -= 2;
     char* temp = startBuffer+sp;
-    *(reinterpret_cast<uint32_t*>(temp)) = entry.headOffset;
+    *(reinterpret_cast<uint16_t*>(temp)) = entry.pageTableIdx;
     sp -= entry.listNameLen;
     temp = startBuffer+sp;
     strcpy(temp, entry.listName);
@@ -56,15 +56,16 @@ stackEntry Stack::top()
     entry.listName = new char[entry.listNameLen];
     strncpy(entry.listName, temp, entry.listNameLen);
     temp += entry.listNameLen;
-    entry.headOffset = *(reinterpret_cast<uint32_t*>(temp));
+    entry.pageTableIdx = *(reinterpret_cast<uint16_t*>(temp));
     return entry;
 }
 void Stack::pop()
 {
     char* temp = startBuffer+sp;
     uint8_t listNameLen = *(reinterpret_cast<uint8_t*>(temp));
-    sp += 1 + listNameLen + 4;
+    sp += 1 + listNameLen + 2;
 }
+
 
 int main()
 {
