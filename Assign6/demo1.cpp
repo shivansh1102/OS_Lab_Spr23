@@ -17,13 +17,13 @@ void func1(int n,  ofstream& fileout)
     assignVal("a", 1, i, i+n);
     fileout << "When n: " << n << endl;
     for(int i = 0; i < 10; i++)
-    fileout << getVal("a", 1, i) << " ";
+    fileout << getVal("a", 1, i, 0) << " ";
     fileout << endl;
     func1(n-1, fileout);
 
     fileout << "When n: " << n << endl;
     for(int i = 0; i < 10; i++)
-    fileout << getVal("a", 1, i) << " ";
+    fileout << getVal("a", 1, i, 0) << " ";
     fileout << endl;
     freeElem();
     FuncEnd();
@@ -36,7 +36,7 @@ int main()
     const int SIZE = 1000*1000;
     createMem(SIZE);
     newFuncBegin();
-    func1(100, fileout);
+    func1(5, fileout);
     FuncEnd();
     return 0;
 }

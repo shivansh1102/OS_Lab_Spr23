@@ -53,8 +53,9 @@ class Stack
     void push(const stackEntry &);          // Push stack entry 
     stackEntry top();                       // Returns top entry from stack
     void pop();                             // Pop stack entry
-    uint16_t findPTidxByName(char*, uint8_t);
+    uint16_t findPTidxByName(char*, uint8_t, bool);
     uint16_t freeLastListCurrStack();
+    void copyByValueUtil(char*, uint8_t, uint32_t);
 };
 
 struct pageTableEntry
@@ -78,7 +79,6 @@ class PageTable
     uint16_t currSize;
     public:
     PageTable() ;
-
     void insert(const pageTableEntry&);
     uint16_t findFreeBlockIdx(uint32_t);
     uint16_t allocateList(uint32_t);
@@ -100,8 +100,8 @@ class PageTable
 
 void createMem(uint32_t);
 void createList(uint32_t, char*, uint8_t);
-void assignVal(char* , uint8_t, uint32_t, uint32_t);
-uint32_t getVal(char*, uint8_t, uint32_t);
+void assignVal(char* , uint8_t, uint32_t, uint32_t, bool);
+uint32_t getVal(char*, uint8_t, uint32_t, bool);
 void freeElem();
 void freeElem(char*, uint32_t);
 void newFuncBegin();

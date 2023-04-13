@@ -90,16 +90,30 @@ void Stack::pop()
     sp += 1 + listNameLen + 2;
 }
 
-uint16_t Stack::findPTidxByName(char* listName, uint8_t listNameLen)
+uint16_t Stack::findPTidxByName(char* listName, uint8_t listNameLen, bool prevFrame)
 {
     // cout << fstack.top() << endl;
-    uint32_t currsp = sp;
-    char* temp = startBuffer+sp;
+    uint32_t currsp, fptr;
+    char* temp;
     uint8_t lNLen;
-    while(currsp < fstack.top())
+    if(prevFrame)               // if lookup is to be done on previous frame
+    {
+        currsp = fstack.top();
+        fstack.pop();
+        fptr = fstack.top();
+        cout << "currsp: " << currsp << " fptr: " << fptr << endl;
+        fstack.push(currsp);
+    }
+    else
+    {
+        currsp = sp;
+        fptr = fstack.top();
+    }
+    temp = startBuffer + currsp;
+    while(currsp < fptr)
     {
         lNLen = *(reinterpret_cast<uint8_t*>(temp));
-        cout << lNLen << endl;
+        // cout << lNLen << endl;
         temp += 1;
         if(listNameLen == lNLen && strncpy(temp, listName, listNameLen))
         {
@@ -193,10 +207,9 @@ void PageTable::assignValUtil(uint16_t idx, uint32_t listIndex, uint32_t val)
 {
     uint32_t offset = listIndex<<2;         // offset in bytes
     uint32_t len = *reinterpret_cast<uint32_t*>(startBuffer+ptearr[idx].headOffset);
-    cout << len << " " << offset << endl;
+    // cout << len << " " << offset << endl;
     if(len-8 <= offset)
     {
-        
         cerr << "Invalid offset" << endl;
         exit(1);
     }
@@ -250,7 +263,7 @@ void createList(uint32_t size, char* listName, uint8_t listNameLen)
     uint16_t ptidx = ptable->allocateList(size);
     if(ptidx == MAX_PAGE_TABLE_ENTRIES)
     return;
-    printf("%s %d\n", listName, listNameLen);
+    // printf("%s %d\n", listName, listNameLen);
     stackEntry se;
     se.listName = new char[listNameLen+1];      // for'\0'
     strncpy(se.listName, listName, listNameLen);
@@ -262,9 +275,9 @@ void createList(uint32_t size, char* listName, uint8_t listNameLen)
     delete se.listName;
 }
 
-void assignVal(char* listName, uint8_t listNameLen, uint32_t offset, uint32_t val)
+void assignVal(char* listName, uint8_t listNameLen, uint32_t offset, uint32_t val, bool prevFrame)
 {
-    uint16_t ptidx = stack->findPTidxByName(listName, listNameLen+(uint8_t)1);
+    uint16_t ptidx = stack->findPTidxByName(listName, listNameLen+(uint8_t)1, prevFrame);
     if(ptidx == MAX_PAGE_TABLE_ENTRIES)
     {
         cerr << "No such list with given name exists" << endl;
@@ -273,9 +286,10 @@ void assignVal(char* listName, uint8_t listNameLen, uint32_t offset, uint32_t va
     ptable->assignValUtil(ptidx, offset, val);
 }
 
-uint32_t getVal(char* listName, uint8_t listNameLen, uint32_t offset)
+uint32_t getVal(char* listName, uint8_t listNameLen, uint32_t offset, bool prevFrame)
 {
-    uint16_t ptidx = stack->findPTidxByName(listName, listNameLen+(uint8_t)1);
+    // if prevFrame is true, then listName is looked in just previous frame
+    uint16_t ptidx = stack->findPTidxByName(listName, listNameLen+(uint8_t)1, prevFrame);
     if(ptidx == MAX_PAGE_TABLE_ENTRIES)
     {
         cerr << "No such list with given name exists" << endl;
@@ -293,7 +307,7 @@ void freeElem()
 
 void freeElem(char* listName, uint32_t listNameLen)
 {
-    uint16_t ptidx = stack->findPTidxByName(listName, listNameLen);
+    uint16_t ptidx = stack->findPTidxByName(listName, listNameLen, 0);
     ptable->freeList(ptidx);
 }
 
@@ -306,4 +320,5 @@ void FuncEnd()
 {
     stack->FuncEndUtil();
 }
+
 
