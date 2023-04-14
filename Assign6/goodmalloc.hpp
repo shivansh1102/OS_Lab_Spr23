@@ -13,7 +13,7 @@ using namespace std;
 extern char* startBuffer;                      // to store malloced segment header        
 extern uint32_t startMem, endMem;              // to store offset of starting and ending portion of mem
 extern uint32_t totalBytesMalloced;
-
+extern uint32_t curMemoryFootprint, maxMemoryFootprint;
 
 struct stackEntry
 {
@@ -100,5 +100,6 @@ void newFuncBegin();
 void FuncEnd();
 uint32_t getCurFramePointer();
 uint32_t getCurStackPointer();
+void deleteMem();
 
 #endif

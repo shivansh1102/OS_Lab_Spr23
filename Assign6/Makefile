@@ -1,6 +1,6 @@
 CXXFLAGS=-Wall
 
-all: library demo
+all: library mergesort
 
 library: goodmalloc.o
 	ar rcs -o libgoodmalloc.a goodmalloc.o
@@ -14,8 +14,6 @@ install:
 clean:
 	rm -f goodmalloc.o libgoodmalloc.a demo mergesort
 
-demo: demo1.cpp
-	g++ $(CXXFLAGS) demo1.cpp -o demo -L. -lgoodmalloc
 
 mergesort: mergesort2.cpp
 	g++ $(CXXFLAGS) mergesort2.cpp -o mergesort -L. -lgoodmalloc

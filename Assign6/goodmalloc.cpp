@@ -3,6 +3,7 @@
 char* startBuffer;
 uint32_t startMem, endMem;
 uint32_t totalBytesMalloced;
+uint32_t curMemoryFootprint, maxMemoryFootprint;
 
 Stack *stack;
 PageTable* ptable;
@@ -56,6 +57,9 @@ void Stack::FuncEndUtil()
 }
 void Stack::push(const stackEntry &entry)
 {
+    curMemoryFootprint += sizeof(entry);
+    maxMemoryFootprint = max(maxMemoryFootprint, curMemoryFootprint);
+
     // cout << "Old stack pointer: " << sp << endl;
     sp -= 2;
     char* temp = startBuffer+sp;
@@ -85,6 +89,8 @@ void Stack::pop()
     char* temp = startBuffer+sp;
     uint8_t listNameLen = *(reinterpret_cast<uint8_t*>(temp));
     sp += 1 + listNameLen + 2;
+    curMemoryFootprint -= (1 + listNameLen + 2);
+    maxMemoryFootprint = max(maxMemoryFootprint, curMemoryFootprint);
 }
 
 uint16_t Stack::findPTidxByName(char* listName, uint8_t listNameLen, uint32_t cursp = 0, uint32_t curfp = 0)
@@ -107,7 +113,6 @@ uint16_t Stack::findPTidxByName(char* listName, uint8_t listNameLen, uint32_t cu
     while(currsp < fptr)
     {
         lNLen = *(reinterpret_cast<uint8_t*>(temp));
-        // cout << lNLen << endl;
         temp += 1;
         if(listNameLen == lNLen && strncpy(temp, listName, listNameLen))
         {
@@ -150,6 +155,9 @@ void PageTable::insert(const pageTableEntry& pte)
         cerr << "Page table full" << endl;
         exit(1);
     }
+    curMemoryFootprint += sizeof(pte);
+    maxMemoryFootprint = max(maxMemoryFootprint, curMemoryFootprint);
+
     ptearr[currSize] = pte;
     ptearr[lastFreeIdx].nextFreeIdx = currSize;
     lastFreeIdx = currSize;
@@ -217,7 +225,6 @@ void PageTable::assignValUtil(uint16_t idx, uint32_t listIndex, uint32_t val)
 {
     uint32_t offset = listIndex<<2;         // offset in bytes
     uint32_t len = *reinterpret_cast<uint32_t*>(startBuffer+ptearr[idx].headOffset);
-    // cout << len << " " << offset << endl;
     if(len-8 <= offset)
     {
         // cout << idx << " " << listIndex << " " << val  << endl;
@@ -270,6 +277,8 @@ void createMem(uint32_t bytes)
     stack = new(startBuffer+bytes-sizeof(Stack)) Stack(bytes);
     ptable = new(startBuffer) PageTable();
     cout << "Memory Created!" << endl;
+    maxMemoryFootprint = sizeof(PageTable) + sizeof(Stack);
+    curMemoryFootprint = sizeof(PageTable) + sizeof(Stack);
 }
 
 void createList(uint32_t size, char* listName, uint8_t listNameLen)
@@ -278,7 +287,9 @@ void createList(uint32_t size, char* listName, uint8_t listNameLen)
     uint16_t ptidx = ptable->allocateList(size);
     if(ptidx == MAX_PAGE_TABLE_ENTRIES)
     return;
-    // printf("%s %d\n", listName, listNameLen);
+
+    curMemoryFootprint += size+8;       // 4 bytes for head and 4 bytes for tail of chunk
+    maxMemoryFootprint = max(maxMemoryFootprint, curMemoryFootprint);
     stackEntry se;
     se.listName = new char[listNameLen+1];      // for'\0'
     strncpy(se.listName, listName, listNameLen);
@@ -344,5 +355,12 @@ uint32_t getCurFramePointer()
 uint32_t getCurStackPointer()
 {
     return stack->sp;
+}
+
+void deleteMem()
+{
+    cout << "MAX Memory Footprint: " << maxMemoryFootprint << endl;
+    delete [] startBuffer;
+    cout << "Memory freed" << endl;
 }
 

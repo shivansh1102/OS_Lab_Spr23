@@ -1,10 +1,9 @@
 #include <iostream>
 #include <cstring>
 #include <fstream>
+#include <chrono>
 #include "goodmalloc.hpp"
 using namespace std;
-
-ofstream outFile("output.txt");
 
 void merge(char* list, uint8_t listLen, uint32_t sp, uint32_t fp, int l1, int r1, int l2, int r2, char* list2, uint8_t list2Len, uint32_t sp2, uint32_t fp2)
 {
@@ -52,7 +51,6 @@ void mergesort(char* listName, uint8_t listNameLen, uint32_t listSize, uint32_t 
     cout << l << " " << r << endl;
     newFuncBegin();
     
-    // outFile << l << " " << r << endl;
     if(l >= r)
     {
         freeElem();
@@ -82,8 +80,11 @@ void mergesort(char* listName, uint8_t listNameLen, uint32_t listSize, uint32_t 
 int main()
 {
     srand(time(NULL));
+    ofstream outFile("output.txt");
     
     const int SIZE = 250*1024*1024, ARRSIZE = 50000;
+    auto startTime = chrono::high_resolution_clock().now();
+
     createMem(SIZE);
     newFuncBegin();
 
@@ -107,5 +108,11 @@ int main()
 
     freeElem();
     FuncEnd();
+    deleteMem();
+
+    auto endTime = chrono::high_resolution_clock().now();
+    auto timeTaken = chrono::duration_cast<chrono::milliseconds>(endTime-startTime);
+    outFile << "Time taken: " << timeTaken.count() << endl;
     return 0;
 }
+//638320 567480
