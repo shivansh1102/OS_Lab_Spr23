@@ -8,7 +8,7 @@ using namespace std;
 
 #define MAX_FRAME_CNT 10000
 #define MAX_PAGE_TABLE_ENTRIES 16384   // 2^15
-#define MAX_STACK_SIZE 100000
+#define MAX_STACK_SIZE 10000
 
 extern char* startBuffer;                      // to store malloced segment header        
 extern uint32_t startMem, endMem;              // to store offset of starting and ending portion of mem
@@ -53,9 +53,11 @@ class Stack
     void push(const stackEntry &);          // Push stack entry 
     stackEntry top();                       // Returns top entry from stack
     void pop();                             // Pop stack entry
-    uint16_t findPTidxByName(char*, uint8_t, bool);
+    uint16_t findPTidxByName(char*, uint8_t, uint32_t, uint32_t);
     uint16_t freeLastListCurrStack();
     void copyByValueUtil(char*, uint8_t, uint32_t);
+    friend uint32_t getCurFramePointer();
+    friend uint32_t getCurStackPointer();
 };
 
 struct pageTableEntry
@@ -84,27 +86,19 @@ class PageTable
     uint16_t allocateList(uint32_t);
     void assignValUtil(uint16_t, uint32_t, uint32_t);
     uint32_t getValUtil(uint16_t, uint32_t);
-    uint16_t findPTidxByHeadOffset(uint32_t);     // req by coalesce
-    // void coalesce(uint16_t idx)
-    // {
-    //     // check for front
-    //     uint32_t len = *reinterpret_cast<uint32_t*>(startBuffer+ptearr[idx].headOffset);
-    //     uint16_t nextBlockIdx = findPTidxByHeadOffset(ptearr[idx].headOffset+len);
-    //     if(nextBlockIdx == -1)      // if no more block exists next to this block
-    //     return;
-    //     ptearr[nextBlockIdx].isValid = 1;       // making it NOT FREE
-    //     *reinterpret_cast<uint32_t*>(startBuffer+ptearr[idx].headOffset) = 
-    // }
+    uint16_t findPTidxByHeadOffset(uint32_t);     
     void freeList(uint16_t);
 };
 
 void createMem(uint32_t);
 void createList(uint32_t, char*, uint8_t);
-void assignVal(char* , uint8_t, uint32_t, uint32_t, bool);
-uint32_t getVal(char*, uint8_t, uint32_t, bool);
+void assignVal(char* , uint8_t, uint32_t, uint32_t, uint32_t = 0, uint32_t = 0);
+uint32_t getVal(char*, uint8_t, uint32_t, uint32_t = 0, uint32_t = 0);
 void freeElem();
 void freeElem(char*, uint32_t);
 void newFuncBegin();
 void FuncEnd();
+uint32_t getCurFramePointer();
+uint32_t getCurStackPointer();
 
 #endif
