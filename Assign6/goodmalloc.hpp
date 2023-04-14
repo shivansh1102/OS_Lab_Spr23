@@ -8,7 +8,7 @@ using namespace std;
 
 #define MAX_FRAME_CNT 10000
 #define MAX_PAGE_TABLE_ENTRIES 16384   // 2^15
-#define MAX_STACK_SIZE 10000
+#define MAX_STACK_SIZE 100000
 
 extern char* startBuffer;                      // to store malloced segment header        
 extern uint32_t startMem, endMem;              // to store offset of starting and ending portion of mem

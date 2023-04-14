@@ -23,7 +23,7 @@ void FrameStack::push(const uint32_t& sp)
         exit(1);
     }
     fptrs[currIdx++] = sp;
-    cout << "New frame created: frame pointer: " << sp << endl;
+    // cout << "New frame created: frame pointer: " << sp << endl;
 }
 void FrameStack::pop()
 {
@@ -59,7 +59,7 @@ void Stack::FuncEndUtil()
 }
 void Stack::push(const stackEntry &entry)
 {
-    cout << "Old stack pointer: " << sp << endl;
+    // cout << "Old stack pointer: " << sp << endl;
     sp -= 2;
     char* temp = startBuffer+sp;
     *(reinterpret_cast<uint16_t*>(temp)) = entry.pageTableIdx;
@@ -69,7 +69,7 @@ void Stack::push(const stackEntry &entry)
     sp -= 1;
     temp = startBuffer+sp;
     *(reinterpret_cast<uint8_t*>(temp)) = entry.listNameLen;
-    cout << "New entry pushed into stack. New stack pointer: " << sp << endl;
+    // cout << "New entry pushed into stack. New stack pointer: " << sp << endl;
 }
 stackEntry Stack::top()
 {
@@ -101,7 +101,7 @@ uint16_t Stack::findPTidxByName(char* listName, uint8_t listNameLen, bool prevFr
         currsp = fstack.top();
         fstack.pop();
         fptr = fstack.top();
-        cout << "currsp: " << currsp << " fptr: " << fptr << endl;
+        // cout << "currsp: " << currsp << " fptr: " << fptr << endl;
         fstack.push(currsp);
     }
     else
@@ -118,7 +118,7 @@ uint16_t Stack::findPTidxByName(char* listName, uint8_t listNameLen, bool prevFr
         if(listNameLen == lNLen && strncpy(temp, listName, listNameLen))
         {
             temp += lNLen;
-            cout << "Page table index found in current stack: " << *reinterpret_cast<uint16_t*>(temp) << endl;
+            // cout << "Page table index found in current stack: " << *reinterpret_cast<uint16_t*>(temp) << endl;
             return *reinterpret_cast<uint16_t*>(temp);
         }
         temp += lNLen + 2;
@@ -146,7 +146,7 @@ PageTable::PageTable() : firstFreeIdx(0), lastFreeIdx(0), currSize(0)
     *reinterpret_cast<uint32_t*>(startBuffer+startMem) = endMem-startMem+1;
     *reinterpret_cast<uint32_t*>(startBuffer+endMem) = endMem-startMem+1;
     ++currSize;
-    cout << "PageTable created" << endl;
+    // cout << "PageTable created" << endl;
 }
 
 void PageTable::insert(const pageTableEntry& pte)
@@ -159,32 +159,42 @@ void PageTable::insert(const pageTableEntry& pte)
     ptearr[currSize] = pte;
     ptearr[lastFreeIdx].nextFreeIdx = currSize;
     lastFreeIdx = currSize;
-    cout << "New page table entry created at " << currSize << " index" << endl;
+    // cout << "New page table entry created at " << currSize << " index" << endl;
     ++currSize;
 }
 
 uint16_t PageTable::findFreeBlockIdx(uint32_t bytes)
 {
+    uint16_t previdx = MAX_PAGE_TABLE_ENTRIES;
     for(uint16_t currIdx = firstFreeIdx; currIdx != MAX_PAGE_TABLE_ENTRIES; currIdx = ptearr[currIdx].nextFreeIdx)
     {
         if((*reinterpret_cast<uint32_t*>(startBuffer+ptearr[currIdx].headOffset)) >= bytes && (!ptearr[currIdx].isValid))    // as higher 31 bits store the actual length
         {
             return currIdx;
-            break;
         }
+        previdx = currIdx;
     }
     return MAX_PAGE_TABLE_ENTRIES;
 }
 
 uint16_t PageTable::allocateList(uint32_t bytes)
 {
-    uint16_t idx = findFreeBlockIdx(bytes+8);           // because we need to store header & tail of implicit list block
+    uint16_t previdx = MAX_PAGE_TABLE_ENTRIES, idx = MAX_PAGE_TABLE_ENTRIES;
+    for(uint16_t currIdx = firstFreeIdx; currIdx != MAX_PAGE_TABLE_ENTRIES; currIdx = ptearr[currIdx].nextFreeIdx)
+    {
+        if((*reinterpret_cast<uint32_t*>(startBuffer+ptearr[currIdx].headOffset)) >= bytes+8 && (!ptearr[currIdx].isValid))    // as higher 31 bits store the actual length
+        {
+            idx = currIdx;
+            break;
+        }
+        previdx = currIdx;
+    }
     if(idx == MAX_PAGE_TABLE_ENTRIES)
     {
         cout << "No free block exists!\n" << endl;
         return idx;
     }
-    cout << "Free Block found at head offset " << ptearr[idx].headOffset << endl;
+    // cout << "Free Block found at head offset " << ptearr[idx].headOffset << endl;
     uint32_t len = *reinterpret_cast<uint32_t*>(startBuffer+ptearr[idx].headOffset);
     if(len > bytes+8)
     {
@@ -198,8 +208,16 @@ uint16_t PageTable::allocateList(uint32_t bytes)
         *reinterpret_cast<uint32_t*>(startBuffer+ptearr[idx].headOffset+bytes+4) = bytes+8;
         *reinterpret_cast<uint32_t*>(startBuffer+ptearr[idx].headOffset) = bytes+8;
     }
+    if(idx == firstFreeIdx)
+    {
+        firstFreeIdx = ptearr[idx].nextFreeIdx;
+    }
+    else
+    {
+        ptearr[previdx].nextFreeIdx = ptearr[idx].nextFreeIdx;
+    }
     ptearr[idx].isValid = 1;
-    cout << "List allocated" << endl;
+    // cout << "List allocated" << endl;
     return idx;
 }
 
@@ -210,19 +228,23 @@ void PageTable::assignValUtil(uint16_t idx, uint32_t listIndex, uint32_t val)
     // cout << len << " " << offset << endl;
     if(len-8 <= offset)
     {
+        // cout << idx << " " << listIndex << " " << val  << endl;
         cerr << "Invalid offset" << endl;
         exit(1);
     }
     *reinterpret_cast<uint32_t*>(startBuffer+ptearr[idx].headOffset+offset+4) = val;
-    cout << "Value assigned at memory offset: " << ptearr[idx].headOffset+offset << endl;
+    // cout << "Value assigned at memory offset: " << ptearr[idx].headOffset+offset << endl;
 }
 
 uint32_t PageTable::getValUtil(uint16_t idx, uint32_t listIndex)
 {
     uint32_t offset = listIndex<<2;
-    if(ptearr[idx].headOffset-8 <= offset)
+    uint32_t len = *reinterpret_cast<uint32_t*>(startBuffer+ptearr[idx].headOffset);
+    if(len-8 <= offset)
     {
-        cerr << "Invalid offset" << endl;
+        // cout << firstFreeIdx << " " << lastFreeIdx << " " << currSize<< " " << ptearr[idx].headOffset+offset << endl;
+        // cout << idx << " " << offset << endl;
+        cerr << "Invalid offset"  << endl;
         exit(1);
     }
     return *reinterpret_cast<uint32_t*>(startBuffer+ptearr[idx].headOffset+offset+4);
@@ -271,7 +293,7 @@ void createList(uint32_t size, char* listName, uint8_t listNameLen)
     se.listNameLen = listNameLen+(uint8_t)1;
     se.pageTableIdx = ptidx;
     stack->push(se);
-    cout << "List created successfully" << endl;
+    // cout << "List created successfully" << endl;
     delete se.listName;
 }
 
