@@ -1,4 +1,4 @@
-#include "trojanDetect.hpp"
+#include "trojanDetection.hpp"
 
 
 // maps pid of a process to its cpu time
